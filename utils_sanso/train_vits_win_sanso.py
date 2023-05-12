@@ -12,9 +12,9 @@ from TTS.utils.audio import AudioProcessor
 
 if __name__ == "__main__":
 
-    output_path = "C:\\Users\\sanso\\Documents\\Uni\\4t\\TFG\\SALIDAS_MODELOS\\"
+    output_path = "drive/MyDrive/colab/outdir"
     dataset_config = BaseDatasetConfig(
-        formatter="ljspeech", meta_file_train="metadata.txt", path="C:\\Users\\sanso\\Documents\\Uni\\4t\\TFG\\sanso_dataset"
+        formatter="ljspeech", meta_file_train="metadata.txt", path="sanso_dataset"
     )
     audio_config = VitsAudioConfig(
         sample_rate=22050, win_length=1024, hop_length=256, num_mels=80, mel_fmin=0, mel_fmax=None
@@ -23,8 +23,8 @@ if __name__ == "__main__":
     config = VitsConfig(
         audio=audio_config,
         run_name="vits_sanso",
-        batch_size=8,
-        eval_batch_size=8,
+        batch_size=16,
+        eval_batch_size=16,
         batch_group_size=5,
         num_loader_workers=8,
         num_eval_loader_workers=4,
