@@ -9,6 +9,11 @@ def main(filepath):
                 #Line must end in "." and "\n" to be a valid line:
                 cleaned_line = multilingual_cleaners(line)
                 f2.write('{0}|{1}|{2}\n'.format(str(index+1), line if not line.endswith("\n") else line[:-1], cleaned_line))
+    with open(filepath, "r", encoding='utf8') as f:
+        with open(filepath.replace(".txt", "notebook.txt") , "w",encoding='utf8') as fn:
+                for index, line in enumerate(f):
+                    cleaned_line = multilingual_cleaners(line)
+                    fn.write('/content/tacotron2/wavs/{0}.wav|{1}\n'.format(str(index+1), cleaned_line))
     #Delete original file and rename dummy file to original file:
     os.remove(filepath)
     os.rename(filepath + "dummy", filepath)

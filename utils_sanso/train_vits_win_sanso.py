@@ -42,6 +42,13 @@ if __name__ == "__main__":
         output_path=output_path,
         datasets=[dataset_config],
         cudnn_benchmark=False,
+        test_sentences = [
+            "Hola, me llamo Sansó y estoy haciendo mi TFG",
+            "Esto es una prueba de texto para ver si funciona bien el modelo",
+            "El murcielago esta en el tejado",
+            "El perro ladra y el gato maulla",
+            "El coche esta en el garaje",
+        ]
     )
 
     # INITIALIZE THE AUDIO PROCESSOR
