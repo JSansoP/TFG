@@ -4,3 +4,4 @@ dcGAN/out/*
 NEMO/clips/*
 NEMO/wavs/*
 *.wav
+TTS/
