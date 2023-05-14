@@ -5,3 +5,5 @@ NEMO/clips/*
 NEMO/wavs/*
 *.wav
 TTS/
+*.pth
+*.pth.tar

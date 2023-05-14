@@ -27,7 +27,7 @@ def main(args):
     print("Transcribing audio file...")
     print("The duration of the file is {0} seconds, so expect at least a wait of that time.".format(duration))
     time.sleep(1) #Wait 1 second to avoid bad allocation error
-    subprocess.run(["whisper", args.filepath,"--model", "medium" ,"--language", args.language, "--output_format", "tsv", "--output_dir", out_folder])
+    subprocess.run(["whisper", args.filepath,"--model", "medium" ,"--language", args.language, "--output_format", "tsv", "--output_dir", out_folder, "--temperature", "0.1"])
 
     #Transform audio file into mono, 16 bit 22050 Hz wav file
     print("Transforming audio file into mono, 16 bit 22050 Hz wav file...")
