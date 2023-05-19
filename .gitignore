@@ -4,6 +4,8 @@ dcGAN/out/*
 NEMO/clips/*
 NEMO/wavs/*
 *.wav
+**.zip
 TTS/
 *.pth
 *.pth.tar
+other_datasets/discursoRey20230512-205808/discursoRey20230512-205808.zip

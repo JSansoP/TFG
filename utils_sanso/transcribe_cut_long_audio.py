@@ -1,0 +1,94 @@
+import argparse
+import re
+import subprocess
+import os
+import datetime
+from TTS.TTS.utils.text.cleaners import multilingual_cleaners
+import torch
+import statistics
+
+from utils import normalize_audio, read_json
+try:
+    from tqdm import tqdm
+except ImportError:
+    print("Tqdm not found, install it for progress bars")
+    tqdm = lambda x: x
+
+def main(args):
+
+    #Check that the audio file exists
+    original_filename = args.filepath.split("\\")[-1]
+    if not os.path.exists(args.filepath):
+        raise Exception("The file {0} does not exist. Please check the path and try again.".format(args.filepath))
+    
+    #Create a folder to store the audio clips and the transcription
+    tmp_name = args.filepath.replace(".wav", "") if args.name_run == "run" else args.name_run
+    out_folder = tmp_name + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    if not os.path.exists(out_folder):
+        os.makedirs(os.path.join(out_folder, "wavs"))
+    
+    #Get audio file duration
+    #Transcribe the audio file using OpenAI Whisper
+    print("Transcribing audio file...")
+    subprocess.run(["whisper", args.filepath,"--model", "medium" ,"--language", args.language, "--word_timestamps", "True" ,"--output_format", "json", "--output_dir", out_folder])
+
+    results = read_json(os.path.join(out_folder, original_filename.replace(".wav", ".json")))
+    results = remove_end_hallucinations(results)
+    
+    #Cut original audio file into clips using the custom segments
+    print("Cutting audio file into clips...")
+    cut_audio_and_generate_metadata(out_folder, args.filepath, results["segments"])
+    print("Done! Check the folder {0} for the audio clips and the metadata file.".format(out_folder))
+
+
+
+def cut_audio_and_generate_metadata(out_folder: str, audio_path: str, segments) -> None:
+    with open(os.path.join(out_folder, "metadata.txt"), "w", encoding='utf8') as f:
+        index = 1
+        for segment in tqdm(segments):
+            start = segment["start"]
+            end = segment["end"]
+            outfile = os.path.join(out_folder, "wavs", str(index) + ".wav")
+            subprocess.run(['ffmpeg', '-i', audio_path, '-ss', str(start), '-to', str(end), outfile, '-loglevel', 'error', '-y', '-hide_banner', ])
+            #Normalize audio file
+            normalize_audio(outfile)
+            cleaned_text = multilingual_cleaners(segment["text"])
+            f.write('/content/tacotron2/wavs/{0}.wav|{1}\n'.format(str(index), cleaned_text))
+            index +=1
+
+
+def contains_punctuation(text, punctuation_symbols):
+    for symbol in punctuation_symbols:
+        if symbol in text:
+            return True
+    return False
+
+
+
+#TODO: could modify easily by iterating over copy of results and discard each segment that is a hallucination
+def remove_end_hallucinations(results): #https://github.com/openai/whisper/discussions/928
+    hallucinations_file = set(read_json(os.path.abspath("hallucination_sentences.json"))['hallucinations'])
+    if results["segments"][len(results["segments"])-1]["text"] in hallucinations_file:
+        del results["segments"][len(results["segments"])-1]
+    return results
+
+def force_cudnn_initialization():
+    s = 32
+    dev = torch.device('cuda')
+    torch.nn.functional.conv2d(torch.zeros(s, s, s, s, device=dev), torch.zeros(s, s, s, s, device=dev))
+
+
+
+if __name__ == "__main__":
+    argparse = argparse.ArgumentParser(description='Script to transcribe and cut long audio files into short clips using OpenAI Whisper and ffmpeg.')
+    argparse.add_argument('-f','--filepath', type=str, default=None, required=True, help='Path to the audio file')
+    argparse.add_argument('-l', '--language', type=str, default="es", required=False, help='Language of the audio file. Default is Spanish (es). English not supported yet.')
+    argparse.add_argument('-n', '--name_run', type=str, default="run", required=False, help='Name of the run. Default is "run". This will be name of the output folder together'
+                        +'with the date and time of the run.')
+    args = argparse.parse_args()
+    #Check that args.filepath file name doesnt contain any spaces or special characters using regex
+    filename = args.filepath.split("\\")[-1]
+    if re.search(r'[^A-Za-z0-9_\.]+', filename):
+        raise Exception("File name contains special characters or spaces. Please rename the file and try again.")
+    force_cudnn_initialization() #Trick to avoid CUDNN_STATUS_NOT_INITIALIZED error when running Whisper
+    main(args)

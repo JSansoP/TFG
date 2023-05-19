@@ -1,0 +1,54 @@
+/content/tacotron2/wavs/1.wav|buenas noches, me alegra mucho poder estar en vuestros hogares y seguir cumpliendo con esta tradición de transmitiros mis mejores deseos, sobre todo de paz, en esta nochebuena.
+/content/tacotron2/wavs/2.wav|y también de compartir con vosotros algunas reflexiones sobre los acontecimientos más relevantes del año que ahora termina.
+/content/tacotron2/wavs/3.wav|el 2022 ha sido, está siendo todavía, complicado y difícil.
+/content/tacotron2/wavs/4.wav|como no han sido nada fáciles los últimos años, cuando creíamos haber superado lo peor de la pandemia, sin duda la mejor noticia, en el mes de febrero rusia invadió ucrania.
+/content/tacotron2/wavs/5.wav|y desde entonces hemos sido testigos de diez meses de una guerra que ya ha causado un nivel de destrucción y ruina difíciles de imaginar en nuestra realidad cotidiana.
+/content/tacotron2/wavs/6.wav|hemos vivido el sufrimiento del pueblo ucraniano y seguimos sintiendo con una profunda tristeza la pérdida de miles de vidas humanas.
+/content/tacotron2/wavs/7.wav|a los ucranianos refugiados en nuestro país y a todos sus compatriotas les enviamos, especialmente hoy, nuestro recuerdo y afecto.
+/content/tacotron2/wavs/8.wav|estamos así ante una nueva guerra en europa, en las fronteras de algunos de nuestros socios europeos y aliados, y por tanto cerca de nosotros.
+/content/tacotron2/wavs/9.wav|y que no solo afecta a ucrania, sino que tiene una trascendencia global.
+/content/tacotron2/wavs/10.wav|por ello nuestra seguridad también se ha visto afectada.
+/content/tacotron2/wavs/11.wav|españa además de reforzar con nuestros aliados la capacidad de defensa colectiva, se ha unido a la inmensa mayoría de la comunidad internacional para apoyar a ucrania y para reafirmar su compromiso de que la soberanía, la integridad territorial y la independencia de los estados son principios irrenunciables de un orden internacional basado en reglas y que siempre debe buscar la paz.
+/content/tacotron2/wavs/12.wav|en ese sentido, la cumbre de la otan que se celebró en españa, en madrid, sirvió para reforzar la unidad de todos los miembros de la alianza y también de la unión europea.
+/content/tacotron2/wavs/13.wav|esta guerra, junto a los efectos también de la pandemia, está teniendo además, como es evidente, un profundo impacto sobre la economía.
+/content/tacotron2/wavs/14.wav|ha provocado una crisis energética con consecuencias graves en la industria, el comercio, el transporte y particularmente en las economías familiares.
+/content/tacotron2/wavs/15.wav|la subida de los precios, especialmente de los alimentos, provoca inseguridad en los hogares.
+/content/tacotron2/wavs/16.wav|tener que hacer frente a gestos cotidianos como encender la calefacción o la luz o llenar el depósito de gasolina acaba siendo una fuente de preocupación e implica, en muchos casos, importantes sacrificios personales y familiares.
+/content/tacotron2/wavs/17.wav|porque, en efecto, hay familias que no pueden afrontar esta situación de una manera prolongada y necesitan el apoyo continuo de los poderes públicos para paliar sus efectos económicos y sociales.
+/content/tacotron2/wavs/18.wav|todo el nuevo escenario que vivimos, la guerra, la situación económica y social, la inestabilidad y las tensiones en las relaciones internacionales, está causando en nuestra sociedad, lógicamente, una gran preocupación e incertidumbre.
+/content/tacotron2/wavs/19.wav|no podemos ignorar la seriedad de estos problemas, pero tampoco podemos renunciar a que las cosas puedan cambiar y mejorar.
+/content/tacotron2/wavs/20.wav|lo primero y, una vez más, debemos tener confianza en nosotros mismos, como nación.
+/content/tacotron2/wavs/21.wav|la transformación y la modernización de españa de las últimas cuatro décadas, gracias al éxito de nuestra transición a la democracia y a la aprobación de nuestra constitución, avala esa confianza.
+/content/tacotron2/wavs/22.wav|como también la justifica la superación de otras crisis económicas, sociales o institucionales que hemos vivido, la más reciente, la del covid.
+/content/tacotron2/wavs/23.wav|somos un país que, como ahora, siempre ha sabido responder, no sin dificultades ni sacrificios, a todas las adversidades que no han sido pocas a lo largo de estos años.
+/content/tacotron2/wavs/24.wav|además de creer en nosotros mismos, en nuestra capacidad, necesitamos siempre, pero más aún en tiempos difíciles, el mayor compromiso de todos con nuestra democracia y con europa, con la unión europea, que son las dos columnas vertebrales sobre las que se asientan nuestro presente y nuestro futuro.
+/content/tacotron2/wavs/25.wav|las democracias en el mundo están expuestas a muchos riesgos, que no son nuevos, pero cuando hoy en día los sufren, adquieren una particular intensidad.
+/content/tacotron2/wavs/26.wav|y españa no es una excepción, pero hay tres sobre los que quiero detenerme porque me parecen muy importantes.
+/content/tacotron2/wavs/27.wav|la división es uno de ellos, el deterioro de la convivencia es otro, la erosión de las instituciones es el tercero.
+/content/tacotron2/wavs/28.wav|un país o una sociedad dividida o enfrentada no avanza, no progresa ni resuelve bien sus problemas, no genera confianza.
+/content/tacotron2/wavs/29.wav|la división hace más frágiles a las democracias, la unión, todo lo contrario, las fortalece.
+/content/tacotron2/wavs/30.wav|en españa lo sabemos por experiencia propia, nuestra constitución, fruto del diálogo y del entendimiento, representa la unión lograda entre los españoles como apuesta de futuro, de diversidad y de concordia para una joven democracia.
+/content/tacotron2/wavs/31.wav|hoy, con el paso de todos estos años, nuestros valores constitucionales están enraizados en nuestra sociedad, y son por ello la referencia donde los españoles debemos seguir encontrando la unión que nos asegura estabilidad, cohesión y progreso, y que nos garantiza una convivencia que como he destacado a menudo es nuestro mayor patrimonio.
+/content/tacotron2/wavs/32.wav|una convivencia que requiere en nuestra vida colectiva el reconocimiento en plenitud de nuestras libertades, junto al respeto y la consideración a las personas, a sus convicciones y a su dignidad, que necesita guiarse por la razón, que demanda anteponer la voluntad de integrar frente al deseo de excluir.
+/content/tacotron2/wavs/33.wav|en esa tarea necesitamos fortalecer nuestras instituciones, unas instituciones sólidas que protejan a los ciudadanos, atiendan a sus preocupaciones, garanticen sus derechos y apoyen a las familias y a los jóvenes en la superación de muchos de sus problemas cotidianos.
+/content/tacotron2/wavs/34.wav|instituciones que respondan al interés general y ejerciten sus funciones con colaboración leal, con respeto a la constitución y a las leyes, y sean un ejemplo de integridad y rectitud.
+/content/tacotron2/wavs/35.wav|y este es un propósito diario con el que las instituciones debemos estar siempre comprometidas.
+/content/tacotron2/wavs/36.wav|creo que en estos momentos todos deberíamos realizar un ejercicio de responsabilidad y reflexionar de manera constructiva sobre las consecuencias que ignorar esos riesgos puede tener para nuestra unión, para nuestra convivencia y nuestras instituciones.
+/content/tacotron2/wavs/37.wav|no podemos dar por hecho todo lo que hemos construido.
+/content/tacotron2/wavs/38.wav|han pasado ya casi 45 años desde la aprobación de la constitución y claro que han cambiado y seguirán cambiando muchas cosas, pero el espíritu que la vio nacer, sus principios y fundamentos, que son obra de todos, no pueden debilitarse ni deben caer en el olvido.
+/content/tacotron2/wavs/39.wav|son un valor único en nuestra historia constitucional y política que debemos proteger porque son el lugar donde los españoles nos reconocemos y donde nos aceptamos los unos a los otros a pesar de nuestras diferencias, el lugar donde hemos convivido y donde convivimos en libertad.
+/content/tacotron2/wavs/40.wav|europa es el segundo compromiso al que antes me refería.
+/content/tacotron2/wavs/41.wav|europa representó y representa para españa también la libertad.
+/content/tacotron2/wavs/42.wav|contribuyó a consolidar nuestra democracia, a potenciar nuestro crecimiento económico y nuestro desarrollo social.
+/content/tacotron2/wavs/43.wav|hoy compartimos muchos de sus problemas y contribuimos a sus decisiones con nuestra propia personalidad y nuestros intereses.
+/content/tacotron2/wavs/44.wav|los desafíos comunes a los que nos enfrentamos desde los sanitarios a los financieros o los relacionados con nuestro modelo energético o medioambiental reciben soluciones integradas en el marco común de la unión europea.
+/content/tacotron2/wavs/45.wav|por ello, lo que se decide cada día en la unión afecta y mucho a la vida cotidiana de todos los españoles.
+/content/tacotron2/wavs/46.wav|esa es la realidad.
+/content/tacotron2/wavs/47.wav|somos europa, pero también necesitamos europa, que es nuestro gran marco de referencia político, económico y social y que, por ello, nos ofrece certeza y seguridad.
+/content/tacotron2/wavs/48.wav|estoy seguro de que el compromiso de españa quedará reforzado con la presidencia rotatoria de la unión que asumirá el año que viene.
+/content/tacotron2/wavs/49.wav|decía al comienzo que vivimos tiempos sin duda de incertidumbre, pero si el éxito de una nación depende del carácter de sus ciudadanos y de la personalidad y el espíritu que mueve a su sociedad, debemos tener razones para mirar al futuro con esperanza.
+/content/tacotron2/wavs/50.wav|somos una de las grandes naciones del mundo con muchos siglos de historia y los españoles tenemos que seguir decidiendo todos juntos nuestro destino, nuestro futuro, cuidando nuestra democracia, protegiendo la convivencia, fortaleciendo nuestras instituciones.
+/content/tacotron2/wavs/51.wav|debemos seguir compartiendo objetivos con un permanente espíritu de renovación y adaptación a los tiempos, con confianza en nuestro país, en una españa que conozco bien, valiente y abierta al mundo, la españa que busca la serenidad, la paz, la tranquilidad, la españa responsable, creativa, vital y solidaria.
+/content/tacotron2/wavs/52.wav|esa españa es la que veo, la que escucho, la que siento en muchos de vosotros y la que, una vez más, saldrá adelante, en manos de todos nosotros que está.
+/content/tacotron2/wavs/53.wav|y finalmente, en esta noche tan especial, os agradezco mucho vuestra atención y junto a la reina y nuestras hijas, la princesa leonor y la infanta sofía, os deseo que tengáis una muy feliz navidad y año nuevo.
+/content/tacotron2/wavs/54.wav|e guberrión, por nadal, boas festas.
