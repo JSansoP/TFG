@@ -5,8 +5,9 @@ from utils import normalize_folder
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Script to normalize all wav files from folder')
     parser.add_argument('-f','--folderpath', type=str, default=None, help='Path to the folder containing the wav files', required=True)
+    parser.add_argument('-v','--verbose', type=bool, default=False, help='Shows progress', required=False)
     args = parser.parse_args()
     if args.folderpath:
-        normalize_folder(args.folderpath, verbose)
+        normalize_folder(args.folderpath, args.verbose)
     else:
         print("Please provide a folderpath")

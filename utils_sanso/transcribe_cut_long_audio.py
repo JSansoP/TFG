@@ -15,7 +15,22 @@ except ImportError:
     tqdm = lambda x: x
 
 def main(args):
-
+    #Check if filename is a folder
+    if os.path.isdir(args.filepath):
+        #Check if folder contains audio files
+        if len(os.listdir(args.filepath)) == 0:
+            raise Exception("The folder {0} is empty. Please check the path and try again.".format(args.filepath))
+        #Check there is at least one wav file in the folder
+        if not any([filename.endswith(".wav") for filename in os.listdir(args.filepath)]):
+            raise Exception("The folder {0} does not contain any wav files. Please check the path and try again.".format(args.filepath))
+        with open(os.path.join(args.filepath, "list_of_audio_files.txt"), "w") as f:
+            for filename in os.listdir(args.filepath):
+                if filename.endswith(".wav"):
+                    f.write("file '" + os.path.join(args.filepath, filename)+"'\n")
+        #Create the joined audio file:
+        subprocess.run(["ffmpeg", "-f", "concat", "-safe", "0", "-i", os.path.join(args.filepath, "list_of_audio_files.txt"), "-c", "copy", os.path.join(args.filepath, "joined_audio.wav"), "-y", "-loglevel", "error", "-hide_banner"])
+        #Set args.filepath to the joined audio file
+        args.filepath = os.path.join(args.filepath, "joined_audio.wav")
     #Check that the audio file exists
     original_filename = args.filepath.split("\\")[-1]
     if not os.path.exists(args.filepath):
@@ -53,15 +68,10 @@ def cut_audio_and_generate_metadata(out_folder: str, audio_path: str, segments) 
             #Normalize audio file
             normalize_audio(outfile)
             cleaned_text = multilingual_cleaners(segment["text"])
+            #Make sure cleaned_text ends with a period or comma (add it if it doesn't)
+            cleaned_text = cleaned_text if cleaned_text[-1] in [".", ","] else cleaned_text + "."
             f.write('/content/tacotron2/wavs/{0}.wav|{1}\n'.format(str(index), cleaned_text))
             index +=1
-
-
-def contains_punctuation(text, punctuation_symbols):
-    for symbol in punctuation_symbols:
-        if symbol in text:
-            return True
-    return False
 
 
 
@@ -81,14 +91,16 @@ def force_cudnn_initialization():
 
 if __name__ == "__main__":
     argparse = argparse.ArgumentParser(description='Script to transcribe and cut long audio files into short clips using OpenAI Whisper and ffmpeg.')
-    argparse.add_argument('-f','--filepath', type=str, default=None, required=True, help='Path to the audio file')
+    argparse.add_argument('-f','--filepath', type=str, default=None, required=True, help='Path to the audio file, or folder if multiple files.')
     argparse.add_argument('-l', '--language', type=str, default="es", required=False, help='Language of the audio file. Default is Spanish (es). English not supported yet.')
-    argparse.add_argument('-n', '--name_run', type=str, default="run", required=False, help='Name of the run. Default is "run". This will be name of the output folder together'
+    argparse.add_argument('-n', '--name_run', type=str, default="run", required=False, help='Name of the run. Default is filename+timestamp. This will be name of the output folder together'
                         +'with the date and time of the run.')
     args = argparse.parse_args()
     #Check that args.filepath file name doesnt contain any spaces or special characters using regex
     filename = args.filepath.split("\\")[-1]
     if re.search(r'[^A-Za-z0-9_\.]+', filename):
         raise Exception("File name contains special characters or spaces. Please rename the file and try again.")
+    if not os.path.isabs(args.filepath):
+        args.filepath = os.path.abspath(args.filepath)
     force_cudnn_initialization() #Trick to avoid CUDNN_STATUS_NOT_INITIALIZED error when running Whisper
     main(args)

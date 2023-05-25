@@ -40,8 +40,8 @@ def normalize_audio(filepath):
     #command: ffmpeg -i 12_normalised.wav -af silenceremove=start_periods=1:start_silence=0.1:start_threshold=-35dB,areverse,silenceremove=start_periods=1:start_silence=0.1:start_threshold=-50dB,areverse out.wav
     subprocess.run(["ffmpeg", "-i", filepath.replace(".wav","tmp2.wav"), "-af", "silenceremove=start_periods=1:start_silence=0.1:start_threshold=-35dB,areverse,silenceremove=start_periods=1:start_silence=0.1:start_threshold=-50dB,areverse", filepath, "-y", "-loglevel", "error", "-hide_banner"])
 
-    #Now we remove the temporary files
     os.remove(filepath.replace(".wav","tmp2.wav"))
+
 
 
 
@@ -49,15 +49,17 @@ def normalize_folder(folderpath, verbose=False):
     '''
     This function normalizes all the audio files in a folder.
     '''
-    if verbose:
-        print("Normalizing all wav files in folder {0}".format(folderpath))
-        for filename in tqdm(os.listdir(folderpath)):
-            if filename.endswith(".wav"):
-                normalize_audio(os.path.join(folderpath, filename))
-    else:
-        for filename in os.listdir(folderpath):
-            if filename.endswith(".wav"):
-                normalize_audio(os.path.join(folderpath, filename))
+    print("Normalizing all wav files in folder {0}".format(folderpath))
+    bar = tqdm
+    if not verbose:
+        bar = lambda x: x
+    for filename in bar(os.listdir(folderpath)):
+        if filename.endswith(".wav") or filename.endswith(".WAV") \
+            or filename.endswith(".mp3") or filename.endswith(".MP3") \
+            or filename.endswith(".m4a") or filename.endswith(".M4A") \
+            or filename.endswith(".flac") or filename.endswith(".FLAC") \
+            or filename.endswith(".ogg") or filename.endswith(".OGG"):
+            normalize_audio(os.path.join(folderpath, filename))
 
 
 def list_audio_lengths(folder_path):

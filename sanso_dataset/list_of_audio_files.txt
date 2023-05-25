@@ -1,0 +1,6 @@
+file 'C:\Users\sanso\Documents\Uni\4t\TFG\sanso_dataset\Recording.wav'
+file 'C:\Users\sanso\Documents\Uni\4t\TFG\sanso_dataset\recording1_cut.wav'
+file 'C:\Users\sanso\Documents\Uni\4t\TFG\sanso_dataset\recording2_cut.wav'
+file 'C:\Users\sanso\Documents\Uni\4t\TFG\sanso_dataset\recording3_cut.wav'
+file 'C:\Users\sanso\Documents\Uni\4t\TFG\sanso_dataset\recording4_cut.wav'
+file 'C:\Users\sanso\Documents\Uni\4t\TFG\sanso_dataset\recording5_cut.wav'
