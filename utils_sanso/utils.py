@@ -125,6 +125,8 @@ def remove_aux_symbols(text):
 def collapse_whitespace(text):
     return re.sub(_whitespace_re, " ", text).strip()
 
+#Pipeline copied from CoquiTTS text cleaners https://github.com/coqui-ai/TTS
+
 def multilingual_cleaners(text):
     """Pipeline for multilingual text"""
     text = text.lower()
