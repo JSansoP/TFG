@@ -3,7 +3,7 @@ import re
 import subprocess
 import os
 import datetime
-from TTS.TTS.utils.text.cleaners import multilingual_cleaners
+from utils import multilingual_cleaners
 import torch
 import statistics
 
