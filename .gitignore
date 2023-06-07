@@ -8,4 +8,5 @@ NEMO/wavs/*
 TTS/
 *.pth
 *.pth.tar
-other_datasets/discursoRey20230512-205808/discursoRey20230512-205808.zip
+**.zip
+projects/
