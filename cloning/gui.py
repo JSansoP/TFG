@@ -6,12 +6,11 @@ import wave
 # import flags
 from PyQt5 import QtCore
 from PyQt5 import uic
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QLabel, QLineEdit, QDialog, QPushButton, QFileDialog, \
-    QMenu
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QFileDialog, QVBoxLayout, QLabel
 
 import gui_utils.gutils as gutils
 import transcribe_cut_long_audio
-from gui_utils.gui_elements import MessagePopup, InputPopup
+from gui_utils.gui_elements import MessagePopup, InputPopup, ExitPopup
 
 SART_SCREEN = 0
 RECORDING_SCREEN = 1
@@ -44,6 +43,16 @@ class MainWindow(QMainWindow):
         self.current_sentence = ""
         self.current_project = None
 
+    def closeEvent(self, event):
+        if self.current_project:
+            popup = ExitPopup(self)
+            popup.show_popup()
+            if popup.cancelled:
+                event.ignore()
+                return
+        gutils.remove_temp_folder()
+        super(MainWindow, self).closeEvent(event)
+
     def add_triggers(self):
         self.bar_open_project.triggered.connect(self.open_project)
         self.bar_new_project.triggered.connect(self.create_new_project)
@@ -71,7 +80,7 @@ class MainWindow(QMainWindow):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         project_file = \
-        QFileDialog.getOpenFileName(self, "Open Project", "projects", "Project Files (*.json)", options=options)[0]
+            QFileDialog.getOpenFileName(self, "Open Project", "projects", "Project Files (*.json)", options=options)[0]
         if project_file:
             print("Opening project: " + project_file)
             self.current_project = gutils.load_project(project_file)
@@ -79,7 +88,7 @@ class MainWindow(QMainWindow):
 
     def create_new_project(self):
         self.w = InputPopup(self)
-        self.w.showPopup()
+        self.w.show_popup()
         if not self.w.cancelled:
             if not gutils.check_project_name(self.w.text):
                 MessagePopup(self).showPopup("Project name cannot be empty, or contain spaces or special characters")
@@ -111,7 +120,7 @@ class MainWindow(QMainWindow):
             self.recording_frame.record_stop.setText("Stop")
         else:
             record = False
-            record_thread.join()  # type: ignore
+            record_thread.join()
             record_thread = None
             self.recording_frame.record_stop.setText("Record")
             self.recording_frame.play_recording.setEnabled(True)
@@ -124,17 +133,21 @@ class MainWindow(QMainWindow):
         play_thread.start()
 
     def delete_recording(self):
-        os.remove(os.path.join(self.current_project.directory, "tempfile.wav"))
+        os.remove(os.path.join("projects", "TEMP", "tempfile.wav"))
         self.recording_frame.play_recording.setEnabled(False)
         self.recording_frame.delete_recording.setEnabled(False)
         self.recording_frame.new_sentence.setEnabled(False)
         self.recording_frame.record_stop.setEnabled(True)
 
     def new_sentence(self):
-        self.current_project.add_audio(self.current_sentence)
-        AudioEntry(
-            self.recording_frame.scrollAreaWidgetContents).filename = f"{self.current_project.current_audio_index()}.wav"
-        self.current_sentence = gutils.get_new_sentence(self.current_project, self.current_sentence)
+        gutils.save_current_audio(self.current_project, self.current_sentence)
+        layout = self.recording_frame.scrollContents.layout()
+        lab = QLabel()
+        lab.setText(f"{self.current_project.current_audio_index()}.wav")
+        lab.setVisible(True)
+        layout.insertWidget(layout.count() - 1, lab)
+        layout.addStretch()
+        self.current_sentence = gutils.get_new_sentence()
         self.recording_frame.sentence_label.setText(self.current_sentence)
         self.recording_frame.play_recording.setEnabled(False)
         self.recording_frame.delete_recording.setEnabled(False)
@@ -159,6 +172,7 @@ class AudioEntry(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('gui_utils/audio_entry.ui', self)
+        self._filename = ""
 
     @property
     def filename(self):

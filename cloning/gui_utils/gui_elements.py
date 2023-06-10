@@ -7,11 +7,44 @@ class Popup(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setGeometry(50, 50, 400, 200)
-        self.ok = QPushButton("Ok")
+        self.exit = QPushButton("Ok")
         self.setFixedSize(400, 200)
         # set position on screen centered on parent
         self.move(self.parent().property("pos").x() + self.parent().property("width") / 2 - self.property("width") / 2, self.parent().property("pos").y() + self.parent().property("height") / 2 - self.property("height") / 2)
 
+
+class ExitPopup(Popup):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setWindowTitle("Close program?")
+        self.setModal(True)
+        self.label = QLabel("Are you sure you want to exit? All unsaved changes will be lost.", self)
+        self.cancel = QPushButton("Cancel", self)
+        self.exit = QPushButton("Exit", self)
+        self._cancelled = True
+        self.cancel.clicked.connect(self.cancel_pressed)
+        self.cancel.setDefault(True)
+        self.exit.setDefault(False)
+        self.exit.clicked.connect(self.okay_pressed)
+        # set position of label, textbox and buttons
+        self.label.setGeometry(50, 20, 280, 40)
+        self.cancel.setGeometry(50, 120, 80, 40)
+        self.exit.setGeometry(250, 120, 80, 40)
+
+    def cancel_pressed(self):
+        self._cancelled = True
+        self.close()
+
+    def okay_pressed(self):
+        self._cancelled = False
+        self.close()
+
+    @property
+    def cancelled(self):
+        return self._cancelled
+
+    def show_popup(self):
+        self.exec_()
 
 class InputPopup(Popup):
     def __init__(self, *args, **kwargs):
@@ -47,7 +80,7 @@ class InputPopup(Popup):
         self._cancelled = False
         self.close()
 
-    def showPopup(self):        
+    def show_popup(self):
         self.exec_()
 
 
