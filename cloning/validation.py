@@ -1,10 +1,12 @@
-from transformers import AutoFeatureExtractor, WavLMForXVector
-from datasets import load_dataset
-import torch
 import argparse
 import os
 import shutil
 import subprocess
+
+import torch
+from datasets import load_dataset
+from transformers import AutoFeatureExtractor, WavLMForXVector
+
 
 def main(folder, threshold=0.7):
     dataset = load_dataset("audiofolder", data_dir=folder)

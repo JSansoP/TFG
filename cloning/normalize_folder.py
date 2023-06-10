@@ -1,4 +1,5 @@
 import argparse
+
 from cloning import normalize_folder
 
 #TODO: Add option to create a copy of the original folder and normalize the files in the copy

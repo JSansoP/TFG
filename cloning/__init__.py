@@ -1,8 +1,8 @@
 import json
 import os
-import subprocess
-import statistics
 import re
+import statistics
+import subprocess
 
 try:
     from tqdm import tqdm

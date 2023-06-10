@@ -1,13 +1,13 @@
-import os
-import re
+import csv
 import json
+import os
+import random
+import re
 import shutil
-import pandas as pd
 
 from cloning.gui_utils.project import Project
 
-sentences: pd.DataFrame = pd.DataFrame()
-
+sentences = list()
 
 def project_exists(project_name):
     return os.path.isdir(os.path.join("projects", project_name))
@@ -31,7 +31,10 @@ def create_project(project_name) -> Project:
 
 
 def save_project(project):
-    shutil.move(os.path.join("projects", "TEMP"), project.directory)
+    if os.path.isfile(os.path.join("projects", "TEMP", "tempfile.wav")):
+        shutil.move(os.path.join("projects", "TEMP", "tempfile.wav"), os.path.join("projects", "TEMP", "wavs",
+                                                                        str(project.next_audio_index()) + ".wav"))
+    shutil.copytree(os.path.join("projects", "TEMP"), project.directory)
     with open(os.path.join(project.directory, "metadata.json"), "w", encoding="utf8") as f:
         f.write(project.toJSON())
 
@@ -50,18 +53,21 @@ def get_last_sentence(project_file):
 
 def get_first_sentence() -> str:
     global sentences
-    sentences = pd.read_csv("validated_cleaned.tsv", sep="\t")
-    return sentences.sample()["sentence"].values[0]
+    with open("validated_cleaned.csv", encoding="utf8") as f:
+        reader = csv.reader(f, delimiter="\t")
+        without_header = list(reader)[1:]
+        sentences = [i[0] for i in without_header]
+    return sentences[random.randint(0, len(sentences) - 1)]
 
 
 def save_current_audio(project: Project, current_sentence: str):
+    project.add_audio(current_sentence)
     shutil.move(os.path.join("projects", "TEMP", "tempfile.wav"),
                 os.path.join("projects", "TEMP", "wavs", str(project.current_audio_index()) + ".wav"))
-    project.add_audio(current_sentence)
 
 
 def get_new_sentence():
-    return sentences.sample()["sentence"].values[0]
+    return sentences[random.randint(0, len(sentences) - 1)]
 
 
 def remove_temp_folder():

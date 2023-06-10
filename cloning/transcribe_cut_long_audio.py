@@ -1,12 +1,13 @@
 import argparse
+import datetime
+import os
 import re
 import subprocess
-import os
-import datetime
+
 import torch
-import statistics
 
 from __init__ import normalize_audio, read_json, multilingual_cleaners
+
 try:
     from tqdm import tqdm
 except ImportError:

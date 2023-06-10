@@ -38,6 +38,7 @@
      <string>Project</string>
     </property>
     <addaction name="bar_open_project"/>
+    <addaction name="bar_save_project"/>
     <addaction name="bar_new_project"/>
     <addaction name="bar_project_from_audio"/>
     <addaction name="bar_exit"/>
@@ -55,7 +56,7 @@
     <string>New Project</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+S</string>
+    <string>Ctrl+N</string>
    </property>
   </action>
   <action name="bar_project_from_audio">
@@ -66,6 +67,17 @@
   <action name="bar_exit">
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="bar_save_project">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Save Project</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
    </property>
   </action>
  </widget>

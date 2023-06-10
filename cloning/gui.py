@@ -1,12 +1,11 @@
 import os
+import wave
 from threading import Thread
 
 import pyaudio
-import wave
 # import flags
-from PyQt5 import QtCore
 from PyQt5 import uic
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QFileDialog, QVBoxLayout, QLabel
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QFileDialog, QLabel
 
 import gui_utils.gutils as gutils
 import transcribe_cut_long_audio
@@ -22,6 +21,7 @@ RATE = 22050
 
 record_thread = None
 record = False
+playing = False
 
 
 class MainWindow(QMainWindow):
@@ -58,6 +58,8 @@ class MainWindow(QMainWindow):
         self.bar_new_project.triggered.connect(self.create_new_project)
         self.bar_exit.triggered.connect(lambda: self.close())
         self.bar_project_from_audio.triggered.connect(self.create_project_from_audio_folder)
+        self.bar_save_project.triggered.connect(self.save_project)
+        self.bar_save_project.setEnabled(False)
 
         self.start_frame.new_project.clicked.connect(self.create_new_project)
         self.start_frame.open_project.clicked.connect(self.open_project)
@@ -74,6 +76,11 @@ class MainWindow(QMainWindow):
     def show_recording(self):
         self.stackedWidget.setCurrentIndex(RECORDING_SCREEN)
         self.recording_frame.project_name.setText(f'Project: {self.current_project.project_name}')
+        self.bar_save_project.setEnabled(True)
+
+    def save_project(self):
+        self.new_sentence()
+        gutils.save_project(self.current_project)
 
     def open_project(self):
         # Open file dialog, file extension must be .json
@@ -129,8 +136,9 @@ class MainWindow(QMainWindow):
             self.recording_frame.record_stop.setEnabled(False)
 
     def play_recording(self):
-        play_thread = Thread(target=play_audio, args=(os.path.join("projects", "TEMP", "tempfile.wav"),))
-        play_thread.start()
+        if not playing:
+            play_thread = Thread(target=play_audio, args=(os.path.join("projects", "TEMP", "tempfile.wav"),))
+            play_thread.start()
 
     def delete_recording(self):
         os.remove(os.path.join("projects", "TEMP", "tempfile.wav"))
@@ -154,6 +162,7 @@ class MainWindow(QMainWindow):
         self.recording_frame.new_sentence.setEnabled(False)
         self.recording_frame.record_stop.setEnabled(True)
         self.recording_frame.record_stop.setText("Record")
+        print(self.current_project.toJSON())
 
 
 class Start(QWidget):
@@ -185,6 +194,8 @@ class AudioEntry(QWidget):
 
 
 def play_audio(filename):
+    global playing
+    playing = True
     wf = wave.open(filename, 'rb')
     p = pyaudio.PyAudio()
     stream = p.open(format=p.get_format_from_width(wf.getsampwidth()), channels=wf.getnchannels(),
@@ -196,6 +207,7 @@ def play_audio(filename):
     stream.stop_stream()
     stream.close()
     p.terminate()
+    playing = False
 
 
 def record_audio(filename):
