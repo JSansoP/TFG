@@ -79,10 +79,10 @@ class MainWindow(QMainWindow):
     def show_recording(self):
         self.stackedWidget.setCurrentIndex(RECORDING_SCREEN)
         self.recording_frame.project_name.setText(f'Project: {self.current_project.project_name}')
-        self.bar_save_project.setEnabled(True)
 
     def save_project(self):
-        self.new_sentence()
+        if gutils.tempfile_exists():
+            self.new_sentence()
         gutils.save_project(self.current_project)
 
     def open_project(self):
@@ -151,22 +151,22 @@ class MainWindow(QMainWindow):
         self.recording_frame.record_stop.setEnabled(True)
 
     def new_sentence(self):
-        if self.current_project.current_audio_index() != 0:
-            gutils.save_current_audio(self.current_project, self.current_sentence)
-            layout = self.recording_frame.scrollContents.layout()
-            lab = QLabel()
-            lab.setText(f"{self.current_project.current_audio_index()}.wav")
-            lab.setVisible(True)
-            layout.insertWidget(layout.count() - 1, lab)
-            layout.addStretch()
-            self.current_sentence = gutils.get_new_sentence()
-            self.recording_frame.text_area.setText(self.current_sentence)
-            self.recording_frame.play_recording.setEnabled(False)
-            self.recording_frame.delete_recording.setEnabled(False)
-            self.recording_frame.new_sentence.setEnabled(False)
-            self.recording_frame.record_stop.setEnabled(True)
-            self.recording_frame.record_stop.setText("Record")
-            print(self.current_project.toJSON())
+        gutils.save_current_audio(self.current_project, self.current_sentence)
+        layout = self.recording_frame.scrollContents.layout()
+        lab = QLabel()
+        lab.setText(f"{self.current_project.current_audio_index()}.wav")
+        lab.setVisible(True)
+        layout.insertWidget(layout.count() - 1, lab)
+        layout.addStretch()
+        self.current_sentence = gutils.get_new_sentence()
+        self.recording_frame.text_area.setText(self.current_sentence)
+        self.recording_frame.play_recording.setEnabled(False)
+        self.recording_frame.delete_recording.setEnabled(False)
+        self.recording_frame.new_sentence.setEnabled(False)
+        self.recording_frame.record_stop.setEnabled(True)
+        self.recording_frame.record_stop.setText("Record")
+        print(self.current_project.toJSON())
+        self.bar_save_project.setEnabled(True)
 
 
 class Start(QWidget):

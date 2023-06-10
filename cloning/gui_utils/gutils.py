@@ -5,9 +5,10 @@ import random
 import re
 import shutil
 
-from cloning.gui_utils.project import Project
+from gui_utils.project import Project
 
 sentences = list()
+
 
 def project_exists(project_name):
     return os.path.isdir(os.path.join("projects", project_name))
@@ -33,7 +34,7 @@ def create_project(project_name) -> Project:
 def save_project(project):
     if os.path.isfile(os.path.join("projects", "TEMP", "tempfile.wav")):
         shutil.move(os.path.join("projects", "TEMP", "tempfile.wav"), os.path.join("projects", "TEMP", "wavs",
-                                                                        str(project.next_audio_index()) + ".wav"))
+                                                                                   str(project.next_audio_index()) + ".wav"))
     shutil.copytree(os.path.join("projects", "TEMP"), project.directory, dirs_exist_ok=True)
     with open(os.path.join(project.directory, "metadata.json"), "w", encoding="utf8") as f:
         f.write(project.toJSON())
@@ -58,6 +59,10 @@ def get_first_sentence() -> str:
         without_header = list(reader)[1:]
         sentences = [i[0] for i in without_header]
     return sentences[random.randint(0, len(sentences) - 1)]
+
+
+def tempfile_exists():
+    return os.path.isfile(os.path.join("projects", "TEMP", "tempfile.wav"))
 
 
 def save_current_audio(project: Project, current_sentence: str):
