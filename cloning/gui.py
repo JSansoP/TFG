@@ -5,6 +5,7 @@ from threading import Thread
 import pyaudio
 # import flags
 from PyQt5 import uic
+from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QFileDialog, QLabel
 
 import gui_utils.gutils as gutils
@@ -42,6 +43,8 @@ class MainWindow(QMainWindow):
         self.show_start()
         self.current_sentence = ""
         self.current_project = None
+        self.recording_frame.text_area.setFont(QFont("Tahoma", 28))
+        self.recording_frame.text_area.setReadOnly(True)
 
     def closeEvent(self, event):
         if self.current_project:
@@ -106,7 +109,7 @@ class MainWindow(QMainWindow):
                 self.current_project = gutils.create_project(self.w.text)
                 print(self.current_project.toJSON())
                 self.current_sentence = gutils.get_first_sentence()
-                self.recording_frame.sentence_label.setText(self.current_sentence)
+                self.recording_frame.text_area.setText(self.current_sentence)
                 self.show_recording()
 
     def create_project_from_audio_folder(self):
@@ -148,21 +151,22 @@ class MainWindow(QMainWindow):
         self.recording_frame.record_stop.setEnabled(True)
 
     def new_sentence(self):
-        gutils.save_current_audio(self.current_project, self.current_sentence)
-        layout = self.recording_frame.scrollContents.layout()
-        lab = QLabel()
-        lab.setText(f"{self.current_project.current_audio_index()}.wav")
-        lab.setVisible(True)
-        layout.insertWidget(layout.count() - 1, lab)
-        layout.addStretch()
-        self.current_sentence = gutils.get_new_sentence()
-        self.recording_frame.sentence_label.setText(self.current_sentence)
-        self.recording_frame.play_recording.setEnabled(False)
-        self.recording_frame.delete_recording.setEnabled(False)
-        self.recording_frame.new_sentence.setEnabled(False)
-        self.recording_frame.record_stop.setEnabled(True)
-        self.recording_frame.record_stop.setText("Record")
-        print(self.current_project.toJSON())
+        if self.current_project.current_audio_index() != 0:
+            gutils.save_current_audio(self.current_project, self.current_sentence)
+            layout = self.recording_frame.scrollContents.layout()
+            lab = QLabel()
+            lab.setText(f"{self.current_project.current_audio_index()}.wav")
+            lab.setVisible(True)
+            layout.insertWidget(layout.count() - 1, lab)
+            layout.addStretch()
+            self.current_sentence = gutils.get_new_sentence()
+            self.recording_frame.text_area.setText(self.current_sentence)
+            self.recording_frame.play_recording.setEnabled(False)
+            self.recording_frame.delete_recording.setEnabled(False)
+            self.recording_frame.new_sentence.setEnabled(False)
+            self.recording_frame.record_stop.setEnabled(True)
+            self.recording_frame.record_stop.setText("Record")
+            print(self.current_project.toJSON())
 
 
 class Start(QWidget):

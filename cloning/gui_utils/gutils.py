@@ -34,7 +34,7 @@ def save_project(project):
     if os.path.isfile(os.path.join("projects", "TEMP", "tempfile.wav")):
         shutil.move(os.path.join("projects", "TEMP", "tempfile.wav"), os.path.join("projects", "TEMP", "wavs",
                                                                         str(project.next_audio_index()) + ".wav"))
-    shutil.copytree(os.path.join("projects", "TEMP"), project.directory)
+    shutil.copytree(os.path.join("projects", "TEMP"), project.directory, dirs_exist_ok=True)
     with open(os.path.join(project.directory, "metadata.json"), "w", encoding="utf8") as f:
         f.write(project.toJSON())
 

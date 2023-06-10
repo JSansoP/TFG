@@ -18,7 +18,9 @@ class ExitPopup(Popup):
         super().__init__(*args, **kwargs)
         self.setWindowTitle("Close program?")
         self.setModal(True)
-        self.label = QLabel("Are you sure you want to exit? All unsaved changes will be lost.", self)
+        self.label = QPlainTextEdit("Are you sure you want to exit? All unsaved changes will be lost.", self)
+        self.label.setReadOnly(True)
+        self.label.setGeometry(50, 20, 300, 100)
         self.cancel = QPushButton("Cancel", self)
         self.exit = QPushButton("Exit", self)
         self._cancelled = True
