@@ -12,7 +12,7 @@ import gui_utils.gutils as gutils
 import transcribe_cut_long_audio
 from gui_utils.gui_elements import MessagePopup, InputPopup, ExitPopup
 
-SART_SCREEN = 0
+START_SCREEN = 0
 RECORDING_SCREEN = 1
 
 RECORD_CHUNK = 1024
@@ -74,7 +74,7 @@ class MainWindow(QMainWindow):
         self.recording_frame.new_sentence.clicked.connect(self.new_sentence)
 
     def show_start(self):
-        self.stackedWidget.setCurrentIndex(SART_SCREEN)
+        self.stackedWidget.setCurrentIndex(START_SCREEN)
 
     def show_recording(self):
         self.stackedWidget.setCurrentIndex(RECORDING_SCREEN)

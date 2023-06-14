@@ -5,7 +5,7 @@ import random
 import re
 import shutil
 
-from gui_utils.project import Project
+from .project import Project
 
 sentences = list()
 
