@@ -18,3 +18,4 @@ projects/
 cloning/gui_utils/__pycache__/recording_status.cpython-38.pyc
 cloning/gui_utils/audio_entry.ui
 cloning/validated.tsv
+**/__pycache__/**
