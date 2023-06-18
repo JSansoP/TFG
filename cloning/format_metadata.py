@@ -1,5 +1,5 @@
 import argparse
-from cloning import multilingual_cleaners
+from utils import multilingual_cleaners
 
 
 def format_local(filepath, save_name):

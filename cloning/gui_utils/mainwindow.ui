@@ -40,6 +40,7 @@
     <addaction name="bar_open_project"/>
     <addaction name="bar_save_project"/>
     <addaction name="bar_new_project"/>
+    <addaction name="bar_export_zip"/>
     <addaction name="bar_project_from_audio"/>
     <addaction name="bar_exit"/>
    </widget>
@@ -78,6 +79,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="bar_export_zip">
+   <property name="text">
+    <string>Export project as zip</string>
    </property>
   </action>
  </widget>

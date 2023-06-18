@@ -21,7 +21,7 @@ CHANNELS = 1
 RATE = 22050
 
 record_thread = None
-record = False
+recording = False
 playing = False
 
 
@@ -79,6 +79,16 @@ class MainWindow(QMainWindow):
     def show_recording(self):
         self.stackedWidget.setCurrentIndex(RECORDING_SCREEN)
         self.recording_frame.project_name.setText(f'Project: {self.current_project.project_name}')
+        layout = self.recording_frame.scrollContents.layout()
+        for i in reversed(range(layout.count())):
+            layout.itemAt(i).widget().setParent(None)
+        for audio in self.current_project.audios:
+            lab = QLabel()
+            number = os.path.basename(audio['path']).split('.')[0]
+            lab.setText(f"{number}.wav")
+            lab.setVisible(True)
+            layout.insertWidget(layout.count() - 1, lab)
+            layout.addStretch()
 
     def save_project(self):
         if gutils.tempfile_exists():
@@ -93,7 +103,7 @@ class MainWindow(QMainWindow):
             QFileDialog.getOpenFileName(self, "Open Project", "projects", "Project Files (*.json)", options=options)[0]
         if project_file:
             print("Opening project: " + project_file)
-            self.current_project = gutils.load_project(project_file)
+            self.current_project = gutils.open_project(project_file)
             self.show_recording()
 
     def create_new_project(self):
@@ -121,15 +131,15 @@ class MainWindow(QMainWindow):
             transcribe_cut_long_audio.main(audio_folder, "run", "es")
 
     def start_stop_recording(self):
-        global record, record_thread
-        if not record:
-            record = True
+        global recording, record_thread
+        if not recording:
+            recording = True
             tempfile = os.path.join("projects", "TEMP", "tempfile.wav")
             record_thread = Thread(target=record_audio, args=(tempfile,))
             record_thread.start()
             self.recording_frame.record_stop.setText("Stop")
         else:
-            record = False
+            recording = False
             record_thread.join()
             record_thread = None
             self.recording_frame.record_stop.setText("Record")
@@ -218,7 +228,7 @@ def record_audio(filename):
     p = pyaudio.PyAudio()
     stream = p.open(format=SAMPLE_FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=RECORD_CHUNK)
     frames = []
-    while record:
+    while recording:
         data = stream.read(RECORD_CHUNK)
         frames.append(data)
     stream.stop_stream()

@@ -37,13 +37,13 @@ def save_project(project):
                                                                                    str(project.next_audio_index()) + ".wav"))
     shutil.copytree(os.path.join("projects", "TEMP"), project.directory, dirs_exist_ok=True)
     with open(os.path.join(project.directory, "metadata.json"), "w", encoding="utf8") as f:
-        f.write(project.toJSON())
+        f.write(project.to_json())
 
 
-def load_project(project_file_path) -> Project:
-    with open(project_file_path) as f:
+def open_project(project_file_path) -> Project:
+    with open(project_file_path, "r", encoding='utf8') as f:
         data = json.load(f)
-    return Project.fromJSON(json.dumps(data))
+    return Project.from_json(json.dumps(data))
 
 
 def get_last_sentence(project_file):
@@ -78,6 +78,11 @@ def get_new_sentence():
 def remove_temp_folder():
     if os.path.isdir(os.path.join("projects", "TEMP")):
         shutil.rmtree(os.path.join("projects", "TEMP"))
+
+
+def export_project_to_zip(project: Project):
+    shutil.make_archive(project.directory, 'zip', project.directory)
+    return project.directory + ".zip"
 
 # if __name__ == "__main__":
 #     print(check_project_name(sys.argv[1]))

@@ -6,6 +6,8 @@ import subprocess
 
 import torch
 
+from utils import multilingual_cleaners, normalize_audio, read_json
+
 try:
     from tqdm import tqdm
 except ImportError:
@@ -46,7 +48,7 @@ def main(filepath, name_run, language):
 
     # Get audio file duration
     # Transcribe the audio file using OpenAI Whisper
-    print("Transcribing audio file...")
+    print(f"Transcribing audio file: {filepath}...")
     subprocess.run(["whisper", filepath, "--model", "medium", "--language", language, "--word_timestamps", "True",
                     "--output_format", "json", "--output_dir", out_folder])
 
@@ -110,4 +112,4 @@ if __name__ == "__main__":
     if not os.path.isabs(args.filepath):
         args.filepath = os.path.abspath(args.filepath)
     force_cudnn_initialization()  # Trick to avoid CUDNN_STATUS_NOT_INITIALIZED error when running Whisper
-    main(args.filepath, args.language, args.name_run)
+    main(args.filepath, args.name_run, args.language)
