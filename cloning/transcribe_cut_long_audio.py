@@ -3,7 +3,7 @@ import datetime
 import os
 import re
 import subprocess
-
+import shutil
 import torch
 
 from utils import multilingual_cleaners, normalize_audio, read_json
@@ -14,6 +14,8 @@ except ImportError:
     print("Tqdm not found, install it for progress bars")
     tqdm = lambda x: x
 
+AUDIO_FILES_LIST = "list_of_audio_files.txt"
+JOINED_AUDIO_FILE = "joined_audio.wav"
 
 def main(filepath, name_run, language):
     # Check if filename is a folder
@@ -25,16 +27,17 @@ def main(filepath, name_run, language):
         if not any([filename.endswith(".wav") for filename in os.listdir(filepath)]):
             raise Exception(
                 "The folder {0} does not contain any wav files. Please check the path and try again.".format(filepath))
-        with open(os.path.join(filepath, "list_of_audio_files.txt"), "w") as f:
+        with open(os.path.join(filepath, AUDIO_FILES_LIST), "w") as f:
             for filename in os.listdir(filepath):
-                if filename.endswith(".wav"):
+                if filename.endswith(".wav") and not filename.endswith(JOINED_AUDIO_FILE):
                     f.write("file '" + os.path.join(filepath, filename) + "'\n")
         # Create the joined audio file:
         subprocess.run(
-            ["ffmpeg", "-f", "concat", "-safe", "0", "-i", os.path.join(filepath, "list_of_audio_files.txt"), "-c",
-             "copy", os.path.join(filepath, "joined_audio.wav"), "-y", "-loglevel", "error", "-hide_banner"])
+            ["ffmpeg", "-f", "concat", "-safe", "0", "-i", os.path.join(filepath, AUDIO_FILES_LIST), "-c",
+             "copy", os.path.join(filepath, JOINED_AUDIO_FILE), "-y", "-loglevel", "error", "-hide_banner"])
         # Set filepath to the joined audio file
-        filepath = os.path.join(filepath, "joined_audio.wav")
+        os.remove(os.path.join(filepath, AUDIO_FILES_LIST))
+        filepath = os.path.join(filepath, JOINED_AUDIO_FILE)
     # Check that the audio file exists
     original_filename = filepath.split("\\")[-1]
     if not os.path.exists(filepath):
@@ -59,6 +62,7 @@ def main(filepath, name_run, language):
     print("Cutting audio file into clips...")
     cut_audio_and_generate_metadata(out_folder, filepath, results["segments"])
     print("Done! Check the folder {0} for the audio clips and the metadata file.".format(out_folder))
+    os.remove(os.path.join(filepath))
 
 
 def cut_audio_and_generate_metadata(out_folder: str, audio_path: str, segments) -> None:
