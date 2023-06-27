@@ -61,8 +61,8 @@ def main(filepath, name_run, language):
     # Get audio file duration
     # Transcribe the audio file using OpenAI Whisper
     print(f"Transcribing audio file: {filepath}...")
-    subprocess.run(["whisper", filepath, "--model", "medium", "--language", language,
-                    "--output_format", "json","--word_timestamps", "True", "--no_speech_threshold", "0.4", "--output_dir", out_folder])
+    subprocess.run(["whisperx", filepath, "--model", "medium", "--align_model", "WAV2VEC2_ASR_LARGE_LV60K_960H", "--language", language,
+                    "--output_format", "json","--output_dir", out_folder])
 
     results = read_json(os.path.join(out_folder, original_filename.replace(".wav", ".json")))
     results = remove_end_hallucinations(results)

@@ -91,21 +91,11 @@ def get_audio_length(input_audio):
     return float(result.stdout)
 
 
-def replace_symbols(text, lang="en"):
-    """Replace symbols based on the language tag.
-    """
+def replace_symbols(text):
+
     text = text.replace(";", ",")
-    text = text.replace("-", " ") if lang != "ca" else text.replace("-", "")
+    text = text.replace("-", " ")
     text = text.replace(":", ",")
-    if lang == "en":
-        text = text.replace("&", " and ")
-    elif lang == "fr":
-        text = text.replace("&", " et ")
-    elif lang == "pt":
-        text = text.replace("&", " e ")
-    elif lang == "ca":
-        text = text.replace("&", " i ")
-        text = text.replace("'", "")
     return text
 
 
@@ -118,12 +108,10 @@ def collapse_whitespace(text):
     return re.sub(_whitespace_re, " ", text).strip()
 
 
-# Pipeline copied from CoquiTTS text cleaners https://github.com/coqui-ai/TTS
-
 def multilingual_cleaners(text):
     """Pipeline for multilingual text"""
     text = text.lower()
-    text = replace_symbols(text, lang="")
+    text = replace_symbols(text)
     text = remove_aux_symbols(text)
     text = collapse_whitespace(text)
     return text
