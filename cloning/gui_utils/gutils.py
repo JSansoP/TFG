@@ -68,7 +68,7 @@ def tempfile_exists():
 def save_current_audio(project: Project, current_sentence: str):
     project.add_audio(current_sentence)
     shutil.move(os.path.join("projects", "TEMP", "tempfile.wav"),
-                os.path.join("projects", "TEMP", "wavs", str(project.current_audio_index()) + ".wav"))
+                os.path.join("projects", "TEMP", "wavs", str(project.index-1) + ".wav"))
 
 
 def get_new_sentence():
@@ -78,6 +78,9 @@ def get_new_sentence():
 def remove_temp_folder():
     if os.path.isdir(os.path.join("projects", "TEMP")):
         shutil.rmtree(os.path.join("projects", "TEMP"))
+
+def create_temp_folder():
+    os.makedirs(os.path.join("projects", "TEMP", "wavs"))
 
 
 def export_project_to_zip(project: Project):
