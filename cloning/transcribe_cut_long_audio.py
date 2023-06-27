@@ -3,6 +3,7 @@ import datetime
 import os
 import re
 import subprocess
+import time
 import shutil
 import torch
 
@@ -18,6 +19,7 @@ AUDIO_FILES_LIST = "list_of_audio_files.txt"
 JOINED_AUDIO_FILE = "joined_audio.wav"
 
 def main(filepath, name_run, language):
+    original_filepath = filepath
     # Check if filename is a folder
     if os.path.isdir(filepath):
         # Check if folder contains audio files
@@ -27,16 +29,23 @@ def main(filepath, name_run, language):
         if not any([filename.endswith(".wav") for filename in os.listdir(filepath)]):
             raise Exception(
                 "The folder {0} does not contain any wav files. Please check the path and try again.".format(filepath))
-        with open(os.path.join(filepath, AUDIO_FILES_LIST), "w") as f:
+        os.mkdir(os.path.join(filepath, "TEMP"))
+        # Normalize all the audio files in the folder
+        for filename in tqdm(os.listdir(filepath)):
+            if filename.endswith(".wav") or filename.endswith(".WAV") \
+                    and not filename.endswith(JOINED_AUDIO_FILE):
+                shutil.copy(os.path.join(filepath, filename), os.path.join(filepath, "TEMP", filename))
+                normalize_audio(os.path.join(filepath, "TEMP", filename))
+        with open(os.path.join(filepath,"TEMP" ,AUDIO_FILES_LIST), "w") as f:
             for filename in os.listdir(filepath):
                 if filename.endswith(".wav") and not filename.endswith(JOINED_AUDIO_FILE):
                     f.write("file '" + os.path.join(filepath, filename) + "'\n")
         # Create the joined audio file:
         subprocess.run(
-            ["ffmpeg", "-f", "concat", "-safe", "0", "-i", os.path.join(filepath, AUDIO_FILES_LIST), "-c",
+            ["ffmpeg", "-f", "concat", "-safe", "0", "-i", os.path.join(filepath,"TEMP", AUDIO_FILES_LIST), "-c",
              "copy", os.path.join(filepath, JOINED_AUDIO_FILE), "-y", "-loglevel", "error", "-hide_banner"])
         # Set filepath to the joined audio file
-        os.remove(os.path.join(filepath, AUDIO_FILES_LIST))
+        shutil.rmtree(os.path.join(filepath, "TEMP"))
         filepath = os.path.join(filepath, JOINED_AUDIO_FILE)
     # Check that the audio file exists
     original_filename = filepath.split("\\")[-1]
@@ -52,8 +61,8 @@ def main(filepath, name_run, language):
     # Get audio file duration
     # Transcribe the audio file using OpenAI Whisper
     print(f"Transcribing audio file: {filepath}...")
-    subprocess.run(["whisper", filepath, "--model", "medium", "--language", language, "--word_timestamps", "True",
-                    "--output_format", "json", "--output_dir", out_folder])
+    subprocess.run(["whisperx", filepath, "--model", "base", "--language", language,
+                    "--output_format", "json","--word_timestamps", "True", "--no_speech_threshold", "0.4", "--output_dir", out_folder])
 
     results = read_json(os.path.join(out_folder, original_filename.replace(".wav", ".json")))
     results = remove_end_hallucinations(results)
@@ -62,7 +71,9 @@ def main(filepath, name_run, language):
     print("Cutting audio file into clips...")
     cut_audio_and_generate_metadata(out_folder, filepath, results["segments"])
     print("Done! Check the folder {0} for the audio clips and the metadata file.".format(out_folder))
-    os.remove(os.path.join(filepath))
+    # Remove the joined audio file if it was created
+    if original_filepath != filepath:
+        os.remove(os.path.join(filepath))
 
 
 def cut_audio_and_generate_metadata(out_folder: str, audio_path: str, segments) -> None:
@@ -79,15 +90,15 @@ def cut_audio_and_generate_metadata(out_folder: str, audio_path: str, segments) 
             normalize_audio(outfile)
             cleaned_text = multilingual_cleaners(segment["text"])
             # Make sure cleaned_text ends with a period or comma (add it if it doesn't)
-            cleaned_text = cleaned_text if cleaned_text[-1] in [".", ","] else cleaned_text + "."
+            cleaned_text = cleaned_text if cleaned_text[-1] in ['"',"'",'.','。',',','，','!','！','?','？',':','：','”',')',']','}','、',')'] else cleaned_text + "."
             f.write('/content/tacotron2/wavs/{0}.wav|{1}\n'.format(str(index), cleaned_text))
             index += 1
 
 
 # TODO: could modify easily by iterating over copy of results and discard each segment that is a hallucination
 def remove_end_hallucinations(results):  # https://github.com/openai/whisper/discussions/928
-    hallucinations_file = set(read_json(os.path.abspath("hallucination_sentences.json"))['hallucinations'])
-    if results["segments"][len(results["segments"]) - 1]["text"] in hallucinations_file:
+    hallucinations = set(read_json(os.path.abspath("hallucination_sentences.json"))['hallucinations'])
+    if results["segments"][len(results["segments"]) - 1]["text"] in hallucinations:
         del results["segments"][len(results["segments"]) - 1]
     return results
 
@@ -102,12 +113,12 @@ if __name__ == "__main__":
     argparse = argparse.ArgumentParser(
         description='Script to transcribe and cut long audio files into short clips using OpenAI Whisper and ffmpeg.')
     argparse.add_argument('-f', '--filepath', type=str, default=None, required=True,
-                          help='Path to the audio file, or folder if multiple files.')
+                        help='Path to the audio file, or folder if multiple files.')
     argparse.add_argument('-l', '--language', type=str, default="es", required=False,
-                          help='Language of the audio file. Default is Spanish (es). English not supported yet.')
+                        help='Language of the audio file. Default is Spanish (es). English not supported yet.')
     argparse.add_argument('-n', '--name_run', type=str, default="run", required=False,
-                          help='Name of the run. Default is filename+timestamp. This will be name of the output folder together'
-                               + 'with the date and time of the run.')
+                        help='Name of the run. Default is filename+timestamp. This will be name of the output folder together'
+                               + ' with the date and time of the run.')
     args = argparse.parse_args()
     # Check that args.filepath file name doesnt contain any spaces or special characters using regex
     filename = args.filepath.split("\\")[-1]

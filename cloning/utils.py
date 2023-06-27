@@ -38,16 +38,16 @@ def normalize_audio(filepath):
     # Now we normalize the audio file
     # command: ffmpeg -i in.wav -filter:a "speechnorm=e=6" out.wav
     subprocess.run(["ffmpeg", "-i", filepath.replace(".wav", "tmp1.wav"), "-filter:a", 'speechnorm=e=6',
-                    filepath.replace(".wav", "tmp2.wav"), "-y", "-loglevel", "error", "-hide_banner"])
+                    filepath, "-y", "-loglevel", "error", "-hide_banner"])
 
     os.remove(filepath.replace(".wav", "tmp1.wav"))
     # Now we remove silence from the start and end of the file
-    # command: ffmpeg -i 12_normalised.wav -af silenceremove=start_periods=1:start_silence=0.1:start_threshold=-35dB,areverse,silenceremove=start_periods=1:start_silence=0.1:start_threshold=-50dB,areverse out.wav
-    subprocess.run(["ffmpeg", "-i", filepath.replace(".wav", "tmp2.wav"), "-af",
-                    "silenceremove=start_periods=1:start_silence=0.1:start_threshold=-35dB,areverse,silenceremove=start_periods=1:start_silence=0.1:start_threshold=-50dB,areverse",
-                    filepath, "-y", "-loglevel", "error", "-hide_banner"])
+    # command: ffmpeg -i .\recording2_cut.wav -af "silenceremove=start_periods=1:start_silence=0.5:start_threshold=0.001,areverse,silenceremove=start_periods=1:start_silence=0.5:start_threshold=0.001,areverse" silenceremoved.wav
+    # subprocess.run(["ffmpeg", "-i", filepath.replace(".wav", "tmp2.wav"), "-af",
+    #                 "silenceremove=start_periods=1:start_silence=0.1:start_threshold=0.001,areverse,silenceremove=start_periods=1:start_silence=0.1:start_threshold=0.001,areverse",
+    #                 filepath, "-y", "-loglevel", "error", "-hide_banner"])
 
-    os.remove(filepath.replace(".wav", "tmp2.wav"))
+    # os.remove(filepath.replace(".wav", "tmp2.wav"))
 
 
 def normalize_folder(folderpath, verbose=False):
