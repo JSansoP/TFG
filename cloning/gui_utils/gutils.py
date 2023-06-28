@@ -46,6 +46,13 @@ def open_project(project_file_path) -> Project:
     return Project.from_json(json.dumps(data))
 
 
+def get_sentence_from_audio(project: Project, audio_index: str):
+    # Audio index is of the form: "1.wav"
+    for audio in project.audios:
+        if audio.path.split("\\")[-1] == audio_index:
+            return audio.sentence
+
+
 def get_last_sentence(project_file):
     with open(project_file) as f:
         data = json.load(f)
@@ -68,7 +75,7 @@ def tempfile_exists():
 def save_current_audio(project: Project, current_sentence: str):
     project.add_audio(current_sentence)
     shutil.move(os.path.join("projects", "TEMP", "tempfile.wav"),
-                os.path.join("projects", "TEMP", "wavs", str(project.index-1) + ".wav"))
+                os.path.join("projects", "TEMP", "wavs", str(project.index - 1) + ".wav"))
 
 
 def get_new_sentence():
@@ -79,8 +86,13 @@ def remove_temp_folder():
     if os.path.isdir(os.path.join("projects", "TEMP")):
         shutil.rmtree(os.path.join("projects", "TEMP"))
 
+
 def create_temp_folder():
     os.makedirs(os.path.join("projects", "TEMP", "wavs"))
+
+
+def copy_audio_to_TEMP(project: Project, filename: str):
+    shutil.copy(os.path.join(project.directory, "wavs", filename), os.path.join("projects", "TEMP", "tempfile.wav"))
 
 
 def export_project_to_zip(project: Project):

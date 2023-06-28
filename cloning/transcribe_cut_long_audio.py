@@ -67,13 +67,72 @@ def main(filepath, name_run, language):
     results = read_json(os.path.join(out_folder, original_filename.replace(".wav", ".json")))
     results = remove_end_hallucinations(results)
 
+    #Check segments duration and split them if they are longer than 10 seconds
+    checked_segments = check_segments(results["segments"])
     # Cut original audio file into clips using the custom segments
     print("Cutting audio file into clips...")
-    cut_audio_and_generate_metadata(out_folder, filepath, results["segments"])
+    cut_audio_and_generate_metadata(out_folder, filepath, checked_segments)
     print("Done! Check the folder {0} for the audio clips and the metadata file.".format(out_folder))
     # Remove the joined audio file if it was created
     if original_filepath != filepath:
         os.remove(os.path.join(filepath))
+    # Remove joined_audio
+    if os.path.exists(os.path.join(out_folder, JOINED_AUDIO_FILE)):
+        os.remove(os.path.join(out_folder, JOINED_AUDIO_FILE))
+
+
+def check_segments(segments, duration=10):
+    # TODO: fix, se menja trossos de texte molt llargs
+    # segments: [
+    #  {
+    #   "start": 0.0,
+    #  "end": 10.0,
+    # "text": "Hello world"
+    # "words": [
+    # {
+    # "start": 0.0,
+    # "end": 0.5,
+    # "word": "Hello"
+    # },]]
+    #If the duration of the segment is more than 10 seconds, split it into smaller segments
+
+    # word dictionary may sometimes not have end and start keys, only word key. In that case, just add
+    # the word to the new segment and go to the next word
+
+    for segment in segments:
+        for i in range(len(segment["words"])):
+            if "start" not in segment["words"][i].keys():
+                segment["words"][i]["start"] = segment["words"][i-1]["start"]
+                segment["words"][i]["end"] = segment["words"][i-1]["end"]
+                print(f"Word {segment['words'][i]['word']} does not have start and end keys. Using previous word timestamps.")
+    
+    new_segments = []
+    for segment in segments:
+        if segment["end"] - segment["start"] > duration:
+            print(f"Segment {segment['text']} is longer than {duration} seconds. Splitting it into smaller segments.")
+            # Split the segment into smaller segments using the word timestamps to fill the new segment
+            new_segment = dict()
+            new_segment["start"] = segment["start"]
+            new_segment["end"] = segment["start"]
+            new_segment["text"] = ""
+            for word in segment["words"]:
+                if word["end"] - new_segment["start"] > duration:
+                    # Add the new segment to the list of segments
+                    new_segments.append(new_segment)
+                    # Create a new segment
+                    new_segment = dict()
+                    new_segment["start"] = word["start"]
+                    new_segment["end"] = word["end"]
+                    new_segment["text"] = word["word"]
+                else:
+                    new_segment["end"] = word["end"]
+                    new_segment["text"] += " " + word["word"]
+            # Add the last segment to the list of segments
+            new_segments.append(new_segment)
+        else:
+            new_segments.append(segment)
+    return new_segments
+
 
 
 def cut_audio_and_generate_metadata(out_folder: str, audio_path: str, segments) -> None:

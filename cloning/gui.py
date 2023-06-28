@@ -5,6 +5,7 @@ from threading import Thread
 import pyaudio
 # import flags
 from PyQt5 import uic
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QFileDialog, QLabel
 
@@ -45,6 +46,7 @@ class MainWindow(QMainWindow):
         self.current_project = None
         self.recording_frame.text_area.setFont(QFont("Tahoma", 28))
         self.recording_frame.text_area.setReadOnly(True)
+        self.current_sentence_saved = False
 
     def closeEvent(self, event):
         if self.current_project:
@@ -83,8 +85,9 @@ class MainWindow(QMainWindow):
         for i in reversed(range(layout.count())):
             layout.itemAt(i).widget().setParent(None)
         for audio in self.current_project.audios:
-            lab = QLabel()
+            lab = QLabelClickable()
             number = os.path.basename(audio.path).split('.')[0]
+            lab.clicked.connect(self.label_clicked)
             lab.setText(f"{number}.wav")
             lab.setVisible(True)
             layout.insertWidget(layout.count() - 1, lab)
@@ -106,8 +109,9 @@ class MainWindow(QMainWindow):
         if project_file:
             print("Opening project: " + project_file)
             self.current_project = gutils.open_project(project_file)
+            print(self.current_project.audios)
             self.show_recording()
-        gutils.create_temp_folder()
+            gutils.create_temp_folder()
 
     def create_new_project(self):
         self.w = InputPopup(self)
@@ -163,11 +167,27 @@ class MainWindow(QMainWindow):
         self.recording_frame.new_sentence.setEnabled(False)
         self.recording_frame.record_stop.setEnabled(True)
 
+    def label_clicked(self):
+        filename = self.sender().text()
+        # We gotta set the current sentence to the one that was clicked, and also
+        # set the audio to the one that was clicked
+        self.current_sentence = gutils.get_sentence_from_audio(self.current_project, filename)
+        print(self.current_sentence)
+        self.recording_frame.text_area.setText(self.current_sentence)
+        self.recording_frame.play_recording.setEnabled(True)
+        self.recording_frame.delete_recording.setEnabled(True)
+        self.recording_frame.new_sentence.setEnabled(True)
+        self.recording_frame.record_stop.setEnabled(False)
+        gutils.copy_audio_to_TEMP(self.current_project, filename)
+        self.current_sentence_saved = True
+
     def new_sentence(self):
-        gutils.save_current_audio(self.current_project, self.current_sentence)
+        if not self.current_sentence_saved:
+            gutils.save_current_audio(self.current_project, self.current_sentence)
         layout = self.recording_frame.scrollContents.layout()
-        lab = QLabel()
-        lab.setText(f"{self.current_project.index-1}.wav")
+        lab = QLabelClickable()
+        lab.clicked.connect(self.label_clicked)
+        lab.setText(f"{self.current_project.index - 1}.wav")
         lab.setVisible(True)
         layout.insertWidget(layout.count() - 1, lab)
         layout.addStretch()
@@ -194,20 +214,15 @@ class Recording(QWidget):
         uic.loadUi('gui_utils/recording.ui', self)
 
 
-class AudioEntry(QWidget):
+class QLabelClickable(QLabel):
+    clicked: pyqtSignal = pyqtSignal()
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('gui_utils/audio_entry.ui', self)
-        self._filename = ""
 
-    @property
-    def filename(self):
-        return self._filename
-
-    @filename.setter
-    def filename(self, filename):
-        self._filename = filename
-        self.label.setText(filename)
+    def mousePressEvent(self, event):
+        self.clicked.emit()
+        super().mousePressEvent(event)
 
 
 def play_audio(filename):
