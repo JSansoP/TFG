@@ -118,10 +118,11 @@ def check_segments(segments, max_segment_duration=10):
             print(
                 f"Segment {segment['text']} is longer than {max_segment_duration} seconds. Splitting it into smaller segments.")
             # Split the segment into smaller segments using the word timestamps to fill the new segment
-            n_splits = int((segment["end"] - segment["start"]) / max_segment_duration)
-            # Now we find the middle points of the segment where we must split
             segment_duration = segment["end"] - segment["start"]
-            split_points = [segment["start"] + (segment_duration / (i + 1)) for i in range(1, n_splits + 1)]
+            n_splits = int(segment_duration / max_segment_duration)
+            # Now we find the middle points of the segment where we must split
+            splits_duration = segment_duration / (n_splits + 1)
+            split_points = [segment["start"] + splits_duration * (i + 1) for i in range(n_splits)]
             # Now we create the new segments
             new_segment = dict()
             new_segment["start"] = segment["start"]
