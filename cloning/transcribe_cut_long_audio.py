@@ -19,7 +19,7 @@ AUDIO_FILES_LIST = "list_of_audio_files.txt"
 JOINED_AUDIO_FILE = "joined_audio.wav"
 
 
-def main(filepath, name_run, language):
+def main(filepath, name_run="run", language="es"):
     original_filepath = filepath
     # Check if filename is a folder
     if os.path.isdir(filepath):
@@ -51,7 +51,6 @@ def main(filepath, name_run, language):
         shutil.rmtree(os.path.join(filepath, "TEMP"))
         filepath = os.path.join(filepath, JOINED_AUDIO_FILE)
     # Check that the audio file exists
-    original_filename = filepath.split("\\")[-1]
     if not os.path.exists(filepath):
         raise Exception("The file {0} does not exist. Please check the path and try again.".format(filepath))
 
@@ -60,16 +59,21 @@ def main(filepath, name_run, language):
     out_folder = tmp_name + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     if not os.path.exists(out_folder):
         os.makedirs(os.path.join(out_folder, "wavs"))
+    print("outfolder after making wavs dir: ", out_folder)
 
     # Get audio file duration
     # Transcribe the audio file using OpenAI Whisper
-    print(f"Transcribing audio file: {filepath}...")
+    print(f"Transcribing audio file: {filepath} to output folder: {out_folder}...")
     subprocess.run(
         ["whisperx", filepath, "--model", "medium", "--align_model", "WAV2VEC2_ASR_LARGE_LV60K_960H", "--language",
          language,
          "--output_format", "json", "--output_dir", out_folder])
 
-    results = read_json(os.path.join(out_folder, original_filename.replace(".wav", ".json")))
+    filename = os.path.basename(filepath)
+    print(f"Out folder: {out_folder} Filename: {filename}")
+    json_path = os.path.join(out_folder, filename.replace(".wav", ".json"))
+    print("After os.path.join: {0}".format(json_path))
+    results = read_json(json_path)
     results = remove_end_hallucinations(results)
 
     # Check segments duration and split them if they are longer than 10 seconds
@@ -84,6 +88,7 @@ def main(filepath, name_run, language):
     # Remove joined_audio
     if os.path.exists(os.path.join(out_folder, JOINED_AUDIO_FILE)):
         os.remove(os.path.join(out_folder, JOINED_AUDIO_FILE))
+    return out_folder
 
 
 def check_segments(segments, max_segment_duration=10):
@@ -115,8 +120,6 @@ def check_segments(segments, max_segment_duration=10):
     new_segments = []
     for segment in segments:
         if segment["end"] - segment["start"] > max_segment_duration:
-            print(
-                f"Segment {segment['text']} is longer than {max_segment_duration} seconds. Splitting it into smaller segments.")
             # Split the segment into smaller segments using the word timestamps to fill the new segment
             segment_duration = segment["end"] - segment["start"]
             n_splits = int(segment_duration / max_segment_duration)
@@ -184,6 +187,21 @@ def remove_end_hallucinations(results):  # https://github.com/openai/whisper/dis
         del results["segments"][len(results["segments"]) - 1]
     return results
 
+def copy_audio_list_to_tmp_folder(audio_list):
+    #create tmp folder
+    if not os.path.exists(os.path.abspath("tmp")):
+        os.makedirs(os.path.abspath("tmp"))
+    #Delete elements in tmp folder
+    for f in os.listdir(os.path.abspath("tmp")):
+        #if f is a file
+        if os.path.isfile(os.path.join(os.path.abspath("tmp"), f)):
+            os.remove(os.path.join(os.path.abspath("tmp"), f))
+        else: 
+            shutil.rmtree(os.path.join(os.path.abspath("tmp"), f))
+    for audio in audio_list:
+        shutil.copy(audio, os.path.join(os.path.abspath("tmp"), os.path.basename(audio)))
+    return os.path.abspath("tmp")
+
 
 def force_cudnn_initialization():
     s = 32
@@ -194,15 +212,13 @@ def force_cudnn_initialization():
 if __name__ == "__main__":
     argparse = argparse.ArgumentParser(
         description='Script to transcribe and cut long audio files into short clips using OpenAI Whisper and ffmpeg.')
-    argparse.add_argument('-f', '--filepath', type=str, default=None, required=True,
-                          help='Path to the audio file, or folder if multiple files.')
     argparse.add_argument('-l', '--language', type=str, default="es", required=False,
                           help='Language of the audio file. Default is Spanish (es). English not supported yet.')
     argparse.add_argument('-n', '--name_run', type=str, default="run", required=False,
                           help='Name of the run. Default is filename+timestamp. This will be name of the output folder together'
                                + ' with the date and time of the run.')
     args = argparse.parse_args()
-    # Check that args.filepath file name doesnt contain any spaces or special characters using regex
+    # Check that args.filepath file name does not contain any spaces or special characters using regex
     filename = args.filepath.split("\\")[-1]
     if re.search(r'[^A-Za-z0-9_\.]+', filename):
         raise Exception("File name contains special characters or spaces. Please rename the file and try again.")

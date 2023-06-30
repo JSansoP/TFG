@@ -7,7 +7,7 @@ import pyaudio
 from PyQt5 import uic
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QFileDialog, QLabel
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QFileDialog, QLabel, QProgressBar
 
 import gui_utils.gutils as gutils
 import transcribe_cut_long_audio
@@ -61,14 +61,16 @@ class MainWindow(QMainWindow):
     def add_triggers(self):
         self.bar_open_project.triggered.connect(self.open_project)
         self.bar_new_project.triggered.connect(self.create_new_project)
+        self.bar_export_zip.triggered.connect(self.export_project_to_zip)
         self.bar_exit.triggered.connect(lambda: self.close())
-        self.bar_project_from_audio.triggered.connect(self.create_project_from_audio_folder)
+        self.bar_project_from_audio.triggered.connect(self.create_project_from_audio)
         self.bar_save_project.triggered.connect(self.save_project)
         self.bar_save_project.setEnabled(False)
+        self.bar_export_zip.setEnabled(False)
 
         self.start_frame.new_project.clicked.connect(self.create_new_project)
         self.start_frame.open_project.clicked.connect(self.open_project)
-        self.start_frame.project_from_audio.clicked.connect(self.create_project_from_audio_folder)
+        self.start_frame.project_from_audio.clicked.connect(self.create_project_from_audio)
 
         self.recording_frame.record_stop.clicked.connect(self.start_stop_recording)
         self.recording_frame.play_recording.clicked.connect(self.play_recording)
@@ -94,6 +96,7 @@ class MainWindow(QMainWindow):
             layout.addStretch()
         self.current_sentence = gutils.get_first_sentence()
         self.recording_frame.text_area.setText(self.current_sentence)
+        self.bar_export_zip.setEnabled(True)
 
     def save_project(self):
         if gutils.tempfile_exists():
@@ -129,13 +132,28 @@ class MainWindow(QMainWindow):
                 self.recording_frame.text_area.setText(self.current_sentence)
                 self.show_recording()
 
-    def create_project_from_audio_folder(self):
+    def create_project_from_audio(self):
+        #Should be able to select multiple wav files:
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        options |= QFileDialog.ShowDirsOnly
-        audio_folder = QFileDialog.getExistingDirectory(self, "Select folder containing audios", options=options)
-        if audio_folder:
-            transcribe_cut_long_audio.main(audio_folder, "run", "es")
+        audio_files = \
+            QFileDialog.getOpenFileNames(self, "Open Audio Files", "projects", "Audio Files (*.wav)", options=options)[0]
+        if audio_files:
+            if len(audio_files) > 1:
+                path = transcribe_cut_long_audio.copy_audio_list_to_tmp_folder(audio_files)
+            else:
+                path = audio_files[0]
+            thread = Thread(target=transcribe_cut_long_audio.main, args=(path,))
+            thread.start()
+            # Show a popup indicating to look at terminal
+            MessagePopup(self).showPopup("Please look at the terminal for progress")
+
+
+
+
+
+
+
 
     def start_stop_recording(self):
         global recording, record_thread
@@ -200,6 +218,17 @@ class MainWindow(QMainWindow):
         self.recording_frame.record_stop.setText("Record")
         print(self.current_project.to_json())
         self.bar_save_project.setEnabled(True)
+
+    def export_project_to_zip(self):
+        if not self.current_project:
+            MessagePopup(self).showPopup("No project open")
+            return
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        project_folder = QFileDialog.getExistingDirectory(self, "Select folder to save project", options=options)
+        if project_folder:
+            outpath = gutils.export_project_to_zip(self.current_project, project_folder)
+            MessagePopup(self).showPopup(f"Project exported to {outpath}")
 
 
 class Start(QWidget):

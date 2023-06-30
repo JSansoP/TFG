@@ -95,9 +95,10 @@ def copy_audio_to_TEMP(project: Project, filename: str):
     shutil.copy(os.path.join(project.directory, "wavs", filename), os.path.join("projects", "TEMP", "tempfile.wav"))
 
 
-def export_project_to_zip(project: Project):
-    shutil.make_archive(project.directory, 'zip', project.directory)
-    return project.directory + ".zip"
+def export_project_to_zip(project: Project, folder_path: str):
+    out_filepath = os.path.join(folder_path, project.project_name)
+    shutil.make_archive(out_filepath, 'zip', project.directory)
+    return out_filepath + ".zip"
 
 # if __name__ == "__main__":
 #     print(check_project_name(sys.argv[1]))
