@@ -92,22 +92,6 @@ def main(filepath, name_run="run", language="es"):
 
 
 def check_segments(segments, max_segment_duration=10):
-    # TODO: fix, se menja trossos de texte molt llargs
-    # segments: [
-    #  {
-    #   "start": 0.0,
-    #  "end": 10.0,
-    # "text": "Hello world"
-    # "words": [
-    # {
-    # "start": 0.0,
-    # "end": 0.5,
-    # "word": "Hello"
-    # },]]
-    # If the duration of the segment is more than 10 seconds, split it into smaller segments
-
-    # word dictionary may sometimes not have end and start keys, only word key. In that case, just add
-    # the word to the new segment and go to the next word
 
     for segment in segments:
         for i in range(len(segment["words"])):
