@@ -65,7 +65,7 @@ def main(filepath, name_run="run", language="es"):
     # Transcribe the audio file using OpenAI Whisper
     print(f"Transcribing audio file: {filepath} to output folder: {out_folder}...")
     subprocess.run(
-        ["whisperx", filepath, "--model", "medium", "--align_model", "WAV2VEC2_ASR_LARGE_LV60K_960H", "--language",
+        ["whisperx", filepath, "--model", "medium", "--align_model", "VOXPOPULI_ASR_BASE_10K_ES", "--language",
          language,
          "--output_format", "json", "--output_dir", out_folder])
 
@@ -212,6 +212,8 @@ def force_cudnn_initialization():
 if __name__ == "__main__":
     argparse = argparse.ArgumentParser(
         description='Script to transcribe and cut long audio files into short clips using OpenAI Whisper and ffmpeg.')
+    argparse.add_argument('-f', '--filepath', type=str, required=True, help="Path to the audio file or folder to transcribe.")
+    
     argparse.add_argument('-l', '--language', type=str, default="es", required=False,
                           help='Language of the audio file. Default is Spanish (es). English not supported yet.')
     argparse.add_argument('-n', '--name_run', type=str, default="run", required=False,
