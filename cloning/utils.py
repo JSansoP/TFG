@@ -41,13 +41,6 @@ def normalize_audio(filepath):
                     filepath, "-y", "-loglevel", "error", "-hide_banner"])
 
     os.remove(filepath.replace(".wav", "tmp1.wav"))
-    # Now we remove silence from the start and end of the file
-    # command: ffmpeg -i .\recording2_cut.wav -af "silenceremove=start_periods=1:start_silence=0.5:start_threshold=0.001,areverse,silenceremove=start_periods=1:start_silence=0.5:start_threshold=0.001,areverse" silenceremoved.wav
-    # subprocess.run(["ffmpeg", "-i", filepath.replace(".wav", "tmp2.wav"), "-af",
-    #                 "silenceremove=start_periods=1:start_silence=0.1:start_threshold=0.001,areverse,silenceremove=start_periods=1:start_silence=0.1:start_threshold=0.001,areverse",
-    #                 filepath, "-y", "-loglevel", "error", "-hide_banner"])
-
-    # os.remove(filepath.replace(".wav", "tmp2.wav"))
 
 
 def normalize_folder(folderpath, verbose=False):

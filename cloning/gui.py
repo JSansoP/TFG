@@ -148,13 +148,6 @@ class MainWindow(QMainWindow):
             # Show a popup indicating to look at terminal
             MessagePopup(self).showPopup("Please look at the terminal for progress")
 
-
-
-
-
-
-
-
     def start_stop_recording(self):
         global recording, record_thread
         if not recording:
@@ -196,19 +189,21 @@ class MainWindow(QMainWindow):
         self.recording_frame.delete_recording.setEnabled(True)
         self.recording_frame.new_sentence.setEnabled(True)
         self.recording_frame.record_stop.setEnabled(False)
+        if not gutils.project_folder_exists(self.current_project):
+            gutils.save_project(self.current_project)
         gutils.copy_audio_to_TEMP(self.current_project, filename)
         self.current_sentence_saved = True
 
     def new_sentence(self):
         if not self.current_sentence_saved:
             gutils.save_current_audio(self.current_project, self.current_sentence)
-        layout = self.recording_frame.scrollContents.layout()
-        lab = QLabelClickable()
-        lab.clicked.connect(self.label_clicked)
-        lab.setText(f"{self.current_project.index - 1}.wav")
-        lab.setVisible(True)
-        layout.insertWidget(layout.count() - 1, lab)
-        layout.addStretch()
+            layout = self.recording_frame.scrollContents.layout()
+            lab = QLabelClickable()
+            lab.clicked.connect(self.label_clicked)
+            lab.setText(f"{self.current_project.index - 1}.wav")
+            lab.setVisible(True)
+            layout.insertWidget(layout.count() - 1, lab)
+            layout.addStretch()
         self.current_sentence = gutils.get_new_sentence()
         self.recording_frame.text_area.setText(self.current_sentence)
         self.recording_frame.play_recording.setEnabled(False)
@@ -216,8 +211,8 @@ class MainWindow(QMainWindow):
         self.recording_frame.new_sentence.setEnabled(False)
         self.recording_frame.record_stop.setEnabled(True)
         self.recording_frame.record_stop.setText("Record")
-        print(self.current_project.to_json())
         self.bar_save_project.setEnabled(True)
+        self.current_sentence_saved = False
 
     def export_project_to_zip(self):
         if not self.current_project:

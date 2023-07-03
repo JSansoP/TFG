@@ -5,6 +5,8 @@ import random
 import re
 import shutil
 
+import utils
+
 from .project import Project
 
 sentences = list()
@@ -64,7 +66,7 @@ def get_first_sentence() -> str:
     with open("validated_cleaned.csv", encoding="utf8") as f:
         reader = csv.reader(f, delimiter="\t")
         without_header = list(reader)[1:]
-        sentences = [i[0] for i in without_header]
+    sentences = [i[0] for i in without_header]
     return sentences[random.randint(0, len(sentences) - 1)]
 
 
@@ -96,9 +98,13 @@ def copy_audio_to_TEMP(project: Project, filename: str):
 
 
 def export_project_to_zip(project: Project, folder_path: str):
+    utils.normalize_folder(project.directory)
     out_filepath = os.path.join(folder_path, project.project_name)
     shutil.make_archive(out_filepath, 'zip', project.directory)
     return out_filepath + ".zip"
+
+def project_folder_exists(project: Project) -> bool:
+    return os.path.isdir(project.directory)
 
 # if __name__ == "__main__":
 #     print(check_project_name(sys.argv[1]))
