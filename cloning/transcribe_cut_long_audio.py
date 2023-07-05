@@ -59,7 +59,6 @@ def main(filepath, name_run="run", language="es"):
     out_folder = tmp_name + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     if not os.path.exists(out_folder):
         os.makedirs(os.path.join(out_folder, "wavs"))
-    print("outfolder after making wavs dir: ", out_folder)
 
     # Get audio file duration
     # Transcribe the audio file using OpenAI Whisper
@@ -70,9 +69,7 @@ def main(filepath, name_run="run", language="es"):
          "--output_format", "json", "--output_dir", out_folder])
 
     filename = os.path.basename(filepath)
-    print(f"Out folder: {out_folder} Filename: {filename}")
     json_path = os.path.join(out_folder, filename.replace(".wav", ".json"))
-    print("After os.path.join: {0}".format(json_path))
     results = read_json(json_path)
     results = remove_end_hallucinations(results)
 
@@ -140,15 +137,21 @@ def check_segments(segments, max_segment_duration=10):
             new_segments.append(new_segment)
         else:
             new_segments.append(segment)
-    return new_segments
 
+    # Remove segments with only one word
+    new_segments = [segment for segment in new_segments if len(segment["words"]) > 1]
+    #if a segment has their two last words with the same timestamp, remove the segment:
+    new_segments = [segment for segment in new_segments if segment["words"][len(segment["words"]) - 1]["end"] != segment["words"][len(segment["words"]) - 2]["end"]]
+    #repeat the same for the start of the segment
+    new_segments = [segment for segment in new_segments if segment["words"][0]["start"] != segment["words"][1]["start"]]
+    return new_segments
 
 def cut_audio_and_generate_metadata(out_folder: str, audio_path: str, segments) -> None:
     with open(os.path.join(out_folder, "metadata.txt"), "w", encoding='utf8') as f:
         index = 1
         for segment in tqdm(segments):
             start = segment["start"]
-            end = segment["end"]
+            end = (segment["words"][len(segment["words"]) - 1]["end"] + segment["end"]) / 2
             outfile = os.path.join(out_folder, "wavs", str(index) + ".wav")
             subprocess.run(
                 ['ffmpeg', '-i', audio_path, '-ss', str(start), '-to', str(end), outfile, '-loglevel', 'error', '-y',
@@ -199,10 +202,10 @@ if __name__ == "__main__":
     argparse.add_argument('-f', '--filepath', type=str, required=True, help="Path to the audio file or folder to transcribe.")
     
     argparse.add_argument('-l', '--language', type=str, default="es", required=False,
-                          help='Language of the audio file. Default is Spanish (es). English not supported yet.')
+                          help='Language code of the audio file. Default is Spanish (es). English not supported yet.')
     argparse.add_argument('-n', '--name_run', type=str, default="run", required=False,
-                          help='Name of the run. Default is filename+timestamp. This will be name of the output folder together'
-                               + ' with the date and time of the run.')
+                          help='Name of the execution. Default is filename+timestamp. This will be name of the output folder together'
+                               + ' with the date and time of the execution.')
     args = argparse.parse_args()
     # Check that args.filepath file name does not contain any spaces or special characters using regex
     filename = args.filepath.split("\\")[-1]
