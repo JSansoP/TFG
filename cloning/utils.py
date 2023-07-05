@@ -107,4 +107,7 @@ def multilingual_cleaners(text):
     text = replace_symbols(text)
     text = remove_aux_symbols(text)
     text = collapse_whitespace(text)
+    text = text if text[-1] in ['"', "'", '.', '。', ',', '，', '!', '！', '?', '？', ':',
+                                                                '：', '”', ')', ']', '}', '、',
+                                                                ')'] else text + "."
     return text

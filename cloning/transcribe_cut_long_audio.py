@@ -160,9 +160,6 @@ def cut_audio_and_generate_metadata(out_folder: str, audio_path: str, segments) 
             normalize_audio(outfile)
             cleaned_text = multilingual_cleaners(segment["text"])
             # Make sure cleaned_text ends with a period or comma (add it if it doesn't)
-            cleaned_text = cleaned_text if cleaned_text[-1] in ['"', "'", '.', '。', ',', '，', '!', '！', '?', '？', ':',
-                                                                '：', '”', ')', ']', '}', '、',
-                                                                ')'] else cleaned_text + "."
             f.write('/content/tacotron2/wavs/{0}.wav|{1}\n'.format(str(index), cleaned_text))
             index += 1
 
