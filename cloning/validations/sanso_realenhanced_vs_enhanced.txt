@@ -1,0 +1,3 @@
+
+Average similarity:  0.9392718982696533
+Standard deviation:  0.059828405377661854
