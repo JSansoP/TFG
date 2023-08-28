@@ -32,7 +32,7 @@ def main(folder_path1, folder_path2, n, mode):
     elif mode == "random":
         similarities = get_similarities_random(tmp_folder_1, tmp_folder_2, feature_extractor, model, device, n)
 
-    print("Similarities: ", similarities)
+    #print("Similarities: ", similarities)
     print("Average similarity: ", np.mean(similarities))
     print("Standard deviation: ", np.std(similarities))
     print("Max: ", np.max(similarities))
@@ -94,7 +94,6 @@ def get_similarities(fakefiles, realfiles, feature_extractor, model, device) -> 
     print(f"Comparing {number_comparisons} pairs of files")
     for i in range(len(fake_dataset["train"]["audio"])): # type: ignore
         for j in range(len(real_dataset["train"]["audio"])): # type: ignore
-            print(f"Comparing {i} and {j}")
             inputs = feature_extractor(
                 [fake_dataset["train"]["audio"][i]["array"], real_dataset["train"]["audio"][j]["array"]], # type: ignore
                 sampling_rate=sampling_rate, return_tensors="pt", padding=True
