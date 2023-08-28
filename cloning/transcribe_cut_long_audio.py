@@ -3,9 +3,10 @@ import datetime
 import os
 import re
 import subprocess
-import time
+import threading
 import shutil
 import torch
+from typing import List
 
 from utils import multilingual_cleaners, normalize_audio, read_json
 
@@ -147,21 +148,33 @@ def check_segments(segments, max_segment_duration=10):
     return new_segments
 
 def cut_audio_and_generate_metadata(out_folder: str, audio_path: str, segments) -> None:
-    with open(os.path.join(out_folder, "metadata.txt"), "w", encoding='utf8') as f:
-        index = 1
-        for segment in tqdm(segments):
-            start = segment["start"]
-            end = (segment["words"][len(segment["words"]) - 1]["end"] + segment["end"]) / 2
-            outfile = os.path.join(out_folder, "wavs", str(index) + ".wav")
-            subprocess.run(
-                ['ffmpeg', '-i', audio_path, '-ss', str(start), '-to', str(end), outfile, '-loglevel', 'error', '-y',
-                 '-hide_banner', ])
-            # Normalize audio file
-            normalize_audio(outfile)
-            cleaned_text = multilingual_cleaners(segment["text"])
-            # Make sure cleaned_text ends with a period or comma (add it if it doesn't)
-            f.write('/content/tacotron2/wavs/{0}.wav|{1}\n'.format(str(index), cleaned_text))
-            index += 1
+    def cut_and_normalize_segment(audiopath, text, start, end, outfile, index ,fileObject, semaphore):
+        subprocess.run(
+                ['ffmpeg', '-i', audiopath, '-ss', str(start), '-to', str(end), outfile, '-loglevel', 'error', '-y',
+                 '-hide_banner'])
+        normalize_audio(outfile)
+        cleaned_text = multilingual_cleaners(text)
+        semaphore.acquire()
+        fileObject.write('/content/tacotron2/wavs/{0}.wav|{1}\n'.format(str(index), cleaned_text))
+        semaphore.release()
+
+    sem = threading.Semaphore(1)
+    threads: List[threading.Thread] = []
+
+    f = open(os.path.join(out_folder, "metadata.txt"), "w", encoding='utf8')
+    index = 1
+    for segment in segments:
+        start = segment["start"]
+        end = (segment["words"][len(segment["words"]) - 1]["end"] + segment["end"]) / 2
+        outfile = os.path.join(out_folder, "wavs", str(index) + ".wav")
+        t = threading.Thread(target=cut_and_normalize_segment, args= (audio_path, segment["text"], start, end, outfile, index, f, sem,))
+        threads.append(t)
+        t.start()
+        index += 1
+    
+    for t in threads:
+        t.join()
+    f.close()
 
 
 # TODO: could modify easily by iterating over copy of results and discard each segment that is a hallucination
@@ -210,5 +223,5 @@ if __name__ == "__main__":
         raise Exception("File name contains special characters or spaces. Please rename the file and try again.")
     if not os.path.isabs(args.filepath):
         args.filepath = os.path.abspath(args.filepath)
-    force_cudnn_initialization()  # Trick to avoid CUDNN_STATUS_NOT_INITIALIZED error when running Whisper
+    force_cudnn_initialization()  # Trick to avoid CUDNN_STATUS_NOT_INITIALIZED error when running some models
     main(args.filepath, args.name_run, args.language)
