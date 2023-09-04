@@ -91,13 +91,22 @@ def main(filepath, name_run="run", language="es"):
 
 def check_segments(segments, max_segment_duration=10):
 
-    for segment in segments:
+
+    segments_to_remove = []
+
+    for s, segment in enumerate(segments):
         for i in range(len(segment["words"])):
-            if "start" not in segment["words"][i].keys():
-                segment["words"][i]["start"] = segment["words"][i - 1]["start"]
-                segment["words"][i]["end"] = segment["words"][i - 1]["end"]
-                print(
-                    f"Word {segment['words'][i]['word']} does not have start and end keys. Using previous word timestamps.")
+            if "start" not in segment["words"][i].keys() or "end" not in segment["words"][i].keys():
+                for j in range(i-1, -1, -1):
+                    if "start" in segment["words"][j].keys() and "end" in segment["words"][j].keys():
+                        segment["words"][i]["start"] = segment["words"][j]["start"]
+                        segment["words"][i]["end"] = segment["words"][j]["end"]
+                        print(f"Word {segment['words'][i]['word']} does not have start and end keys. Using word \"{segment['words'][j]['word']}\" timestamps.")
+                        break
+                segments_to_remove.append(s)
+                break
+    
+    segments = [segment for i, segment in enumerate(segments) if i not in segments_to_remove]
 
     new_segments = []
     for segment in segments:
