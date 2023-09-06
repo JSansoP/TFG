@@ -9,11 +9,8 @@ from typing import List
 from multiprocessing import Semaphore
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from utils import multilingual_cleaners, normalize_audio, read_json, get_audio_length
-try:
-    from tqdm import tqdm
-except ImportError:
-    print("Tqdm not found, install it for progress bars")
-    tqdm = lambda x: x
+from tqdm import tqdm
+
 
 AUDIO_FILES_LIST = "list_of_audio_files.txt"
 JOINED_AUDIO_FILE = "joined_audio.wav"
