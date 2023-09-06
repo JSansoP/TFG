@@ -3,13 +3,12 @@ import datetime
 import os
 import re
 import subprocess
-import threading
 import shutil
 import torch
 from typing import List
-
-from utils import multilingual_cleaners, normalize_audio, read_json
-
+from multiprocessing import Semaphore
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from utils import multilingual_cleaners, normalize_audio, read_json, get_audio_length
 try:
     from tqdm import tqdm
 except ImportError:
@@ -21,6 +20,7 @@ JOINED_AUDIO_FILE = "joined_audio.wav"
 
 
 def main(filepath, name_run="run", language="es"):
+    time = datetime.datetime.now()
     original_filepath = filepath
     # Check if filename is a folder
     if os.path.isdir(filepath):
@@ -62,6 +62,7 @@ def main(filepath, name_run="run", language="es"):
         os.makedirs(os.path.join(out_folder, "wavs"))
 
     # Get audio file duration
+    duration = get_audio_length(filepath)
     # Transcribe the audio file using OpenAI Whisper
     print(f"Transcribing audio file: {filepath} to output folder: {out_folder}...")
     subprocess.run(
@@ -80,6 +81,12 @@ def main(filepath, name_run="run", language="es"):
     print("Cutting audio file into clips...")
     cut_audio_and_generate_metadata(out_folder, filepath, checked_segments)
     print("Done! Check the folder {0} for the audio clips and the metadata file.".format(out_folder))
+    #Format the time in MM:SS format
+    seconds = datetime.datetime.now().timestamp() - time.timestamp()
+    timeMMSS = str(datetime.timedelta(seconds=seconds))
+    print("Total time: {0}. Audio duration: {1}. Processing speed: {2}".format(timeMMSS, str(datetime.timedelta(seconds=duration)), str(duration / seconds)[:4] + "x"))
+
+
     # Remove the joined audio file if it was created
     if original_filepath != filepath:
         os.remove(os.path.join(filepath))
@@ -156,8 +163,8 @@ def check_segments(segments, max_segment_duration=10):
     new_segments = [segment for segment in new_segments if segment["words"][0]["start"] != segment["words"][1]["start"]]
     return new_segments
 
-def cut_audio_and_generate_metadata(out_folder: str, audio_path: str, segments) -> None:
-    def cut_and_normalize_segment(audiopath, text, start, end, outfile, index ,fileObject, semaphore):
+
+def cut_and_normalize_segment(audiopath, text, start, end, outfile, index ,fileObject, semaphore):
         subprocess.run(
                 ['ffmpeg', '-i', audiopath, '-ss', str(start), '-to', str(end), outfile, '-loglevel', 'error', '-y',
                  '-hide_banner'])
@@ -167,22 +174,25 @@ def cut_audio_and_generate_metadata(out_folder: str, audio_path: str, segments) 
         fileObject.write('/content/tacotron2/wavs/{0}.wav|{1}\n'.format(str(index), cleaned_text))
         semaphore.release()
 
-    sem = threading.Semaphore(1)
-    threads: List[threading.Thread] = []
 
-    f = open(os.path.join(out_folder, "metadata.txt"), "w", encoding='utf8')
+def cut_audio_and_generate_metadata(out_folder: str, audio_path: str, segments) -> None:
+    sem = Semaphore(1)
+
+    work_list = []
     index = 1
+    f = open(os.path.join(out_folder, "metadata.txt"), "w", encoding='utf8')
     for segment in segments:
         start = segment["start"]
         end = (segment["words"][len(segment["words"]) - 1]["end"] + segment["end"]) / 2
         outfile = os.path.join(out_folder, "wavs", str(index) + ".wav")
-        t = threading.Thread(target=cut_and_normalize_segment, args= (audio_path, segment["text"], start, end, outfile, index, f, sem,))
-        threads.append(t)
-        t.start()
+        work_list.append((audio_path, segment["text"], start, end, outfile, index, f, sem))
         index += 1
-    
-    for t in threads:
-        t.join()
+
+    with tqdm(total=len(work_list)) as pbar: # type: ignore
+        with ThreadPoolExecutor(max_workers=8) as ex:
+            futures = [ex.submit(cut_and_normalize_segment, *args) for args in work_list]
+            for future in as_completed(futures):
+                pbar.update(1)
     f.close()
 
 

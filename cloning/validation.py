@@ -58,7 +58,6 @@ def convert_to_16k(folder):
 
 
 def get_similarities_random(folder1, folder2, feature_extractor, model, device, number_comparisons) -> List[float]:
-    # Create dataset with audiofolder mode, pass the folder dir and make it silent
     dataset1 = datasets.load_dataset("audiofolder", data_dir=folder1)
     dataset2 = datasets.load_dataset("audiofolder", data_dir=folder2)
     sampling_rate = dataset1["train"]["audio"][0]["sampling_rate"] # type: ignore
