@@ -1,11 +1,5 @@
-**/data/**
-hifi-gan/
-dcGAN/out/*
-NEMO/clips/*
-NEMO/wavs/*
 *.wav
 **.zip
-TTS/
 *.pth
 *.pth.tar
 **.zip
@@ -15,8 +9,11 @@ projects/
 .idea/modules.xml
 .idea/TFG.iml
 .idea/vcs.xml
-cloning/gui_utils/__pycache__/recording_status.cpython-38.pyc
+cloning/gui_utils/__pycache__/*
 cloning/gui_utils/audio_entry.ui
 cloning/validated.tsv
 **/__pycache__/**
 /*dataset/*
+cloning/validations/*
+other_datasets/*
+sanso_old/*
