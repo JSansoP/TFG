@@ -73,6 +73,7 @@ def list_audio_lengths(folder_path):
             if le > 10:
                 print("WARNING: File {0} has duration {1} (greater than 10 seconds)".format(filename, le))
             lengths.append(le)
+    print("Total audio length of {0} files: {1}".format(len(lengths), sum(lengths)))
     print("Average audio length: {0}".format(sum(lengths) / len(lengths)))
     print("Standard deviation: {0}".format(statistics.stdev(lengths)))
 

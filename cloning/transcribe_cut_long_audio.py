@@ -81,7 +81,7 @@ def main(filepath, name_run="run", language="es"):
     #Format the time in MM:SS format
     seconds = datetime.datetime.now().timestamp() - time.timestamp()
     timeMMSS = str(datetime.timedelta(seconds=seconds))
-    print("Total time: {0}. Audio duration: {1}. Processing speed: {2}".format(timeMMSS, str(datetime.timedelta(seconds=duration)), str(duration / seconds)[:4] + "x"))
+    print("Total processing time: {0}. Audio duration: {1}. Processing speed: {2} real time".format(timeMMSS, str(datetime.timedelta(seconds=duration)), str(duration / seconds)[:4] + "x"))
 
 
     # Remove the joined audio file if it was created
